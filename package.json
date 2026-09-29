@@ -1,10 +1,10 @@
 {
   "name": "eleicoes-site",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Sistema de eleições escolares JK",
+  "main": "servidor/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node servidor/server.js"
   },
   "keywords": [],
   "author": "",
