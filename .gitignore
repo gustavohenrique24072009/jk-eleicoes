@@ -1,5 +1,4 @@
 node_modules/
 .env
 *.log
-servidor/dados/eleicoes.db
 servidor/dados/turmas.json
