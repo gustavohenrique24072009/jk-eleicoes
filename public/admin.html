@@ -1,1871 +1,1603 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
+    <title>Administração | JK Eleições</title>
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <style>
 
-<title>Administração | Eleições JK</title>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, Helvetica, sans-serif;
+        }
 
-<style>
+        body{
+            background:
+                radial-gradient(circle at top left, rgba(0,110,255,.15), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(0,90,255,.10), transparent 30%),
+                #050914;
+            color:#fff;
+            min-height:100vh;
+        }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        body::before{
+            content:"";
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:3px;
+            background:linear-gradient(
+                90deg,
+                transparent,
+                #1687ff,
+                #00b7ff,
+                #1687ff,
+                transparent
+            );
+            animation:linha 4s linear infinite;
+            z-index:9999;
+        }
 
-body {
+        @keyframes linha{
+            0%{transform:translateX(-100%);}
+            100%{transform:translateX(100%);}
+        }
 
-    min-height: 100vh;
+        button,
+        input,
+        select,
+        textarea{
+            font:inherit;
+        }
 
-    background: #090909;
+        button{
+            cursor:pointer;
+        }
 
-    color: #fff;
+        .login-screen{
+            position:fixed;
+            inset:0;
+            background:
+                radial-gradient(circle at center, rgba(0,110,255,.18), transparent 35%),
+                #050914;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            z-index:5000;
+        }
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-}
+        .login-box{
+            width:100%;
+            max-width:430px;
+            padding:40px;
+            border:1px solid rgba(0,145,255,.35);
+            border-radius:24px;
+            background:rgba(9,17,32,.88);
+            backdrop-filter:blur(18px);
+            box-shadow:
+                0 25px 80px rgba(0,0,0,.45),
+                0 0 40px rgba(0,110,255,.08);
+        }
 
+        .login-logo{
+            text-align:center;
+            margin-bottom:30px;
+        }
+
+        .login-logo h1{
+            font-size:34px;
+            letter-spacing:3px;
+        }
+
+        .login-logo span{
+            display:block;
+            color:#1687ff;
+            margin-top:8px;
+            font-size:13px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+        }
+
+        .login-box label{
+            display:block;
+            margin-bottom:8px;
+            color:#9ba8bb;
+            font-size:13px;
+        }
+
+        .login-box input{
+            width:100%;
+            padding:15px;
+            border-radius:12px;
+            border:1px solid #26354c;
+            background:#08101e;
+            color:#fff;
+            outline:none;
+            margin-bottom:16px;
+        }
+
+        .login-box input:focus{
+            border-color:#1687ff;
+            box-shadow:0 0 0 3px rgba(22,135,255,.10);
+        }
+
+        .btn-login{
+            width:100%;
+            padding:15px;
+            border:none;
+            border-radius:12px;
+            background:linear-gradient(135deg,#0877ff,#00a6ff);
+            color:#fff;
+            font-weight:bold;
+            transition:.25s;
+        }
+
+        .btn-login:hover{
+            transform:translateY(-2px);
+            box-shadow:0 10px 30px rgba(0,130,255,.25);
+        }
+
+        .erro-login{
+            color:#ff6675;
+            font-size:13px;
+            margin-top:12px;
+            text-align:center;
+        }
+
+        .app{
+            display:none;
+            min-height:100vh;
+        }
+
+        .sidebar{
+            position:fixed;
+            top:0;
+            left:0;
+            width:250px;
+            height:100vh;
+            background:rgba(5,10,20,.94);
+            border-right:1px solid rgba(255,255,255,.06);
+            padding:28px 18px;
+            z-index:1000;
+            overflow-y:auto;
+        }
+
+        .logo{
+            padding:5px 12px 30px;
+        }
+
+        .logo h1{
+            font-size:25px;
+            letter-spacing:2px;
+        }
+
+        .logo span{
+            display:block;
+            color:#1687ff;
+            font-size:11px;
+            letter-spacing:2px;
+            margin-top:5px;
+        }
+
+        .menu-titulo{
+            color:#526078;
+            font-size:10px;
+            letter-spacing:2px;
+            margin:20px 12px 8px;
+            text-transform:uppercase;
+        }
+
+        .menu button{
+            width:100%;
+            border:none;
+            background:transparent;
+            color:#91a0b5;
+            text-align:left;
+            padding:13px 14px;
+            border-radius:10px;
+            margin-bottom:5px;
+            transition:.2s;
+        }
+
+        .menu button:hover,
+        .menu button.ativo{
+            background:rgba(22,135,255,.10);
+            color:#fff;
+        }
+
+        .menu button.ativo{
+            border-left:3px solid #1687ff;
+        }
+
+        .sair{
+            margin-top:25px;
+            border:1px solid rgba(255,80,95,.2)!important;
+            color:#ff7180!important;
+        }
+
+        .conteudo{
+            margin-left:250px;
+            padding:35px;
+            min-height:100vh;
+        }
+
+        .topo{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:30px;
+        }
+
+        .topo h2{
+            font-size:28px;
+        }
+
+        .status{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            color:#94a1b5;
+            font-size:13px;
+        }
+
+        .status i{
+            width:9px;
+            height:9px;
+            border-radius:50%;
+            background:#20d77a;
+            box-shadow:0 0 12px #20d77a;
+        }
+
+        .secao{
+            display:none;
+            animation:entrada .3s ease;
+        }
+
+        .secao.ativa{
+            display:block;
+        }
+
+        @keyframes entrada{
+            from{
+                opacity:0;
+                transform:translateY(8px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+        }
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+            gap:16px;
+            margin-bottom:25px;
+        }
+
+        .card{
+            background:rgba(11,20,36,.78);
+            border:1px solid rgba(255,255,255,.07);
+            border-radius:18px;
+            padding:22px;
+            transition:.25s;
+        }
+
+        .card:hover{
+            border-color:rgba(22,135,255,.35);
+            transform:translateY(-2px);
+        }
+
+        .card .numero{
+            font-size:30px;
+            font-weight:bold;
+            color:#1687ff;
+        }
+
+        .card .texto{
+            color:#8391a6;
+            font-size:13px;
+            margin-top:7px;
+        }
+
+        .painel{
+            background:rgba(10,18,32,.78);
+            border:1px solid rgba(255,255,255,.07);
+            border-radius:20px;
+            padding:25px;
+            margin-bottom:20px;
+        }
+
+        .painel h3{
+            margin-bottom:20px;
+            font-size:19px;
+        }
+
+        .grid-form{
+            display:grid;
+            grid-template-columns:repeat(2,1fr);
+            gap:15px;
+        }
+
+        .campo{
+            margin-bottom:5px;
+        }
+
+        .campo.full{
+            grid-column:1/-1;
+        }
+
+        .campo label{
+            display:block;
+            color:#9ba8bb;
+            font-size:12px;
+            margin-bottom:7px;
+        }
+
+        .campo input,
+        .campo select,
+        .campo textarea{
+            width:100%;
+            background:#07101e;
+            color:#fff;
+            border:1px solid #24334a;
+            border-radius:11px;
+            padding:13px;
+            outline:none;
+        }
+
+        .campo textarea{
+            min-height:110px;
+            resize:vertical;
+        }
+
+        .campo input:focus,
+        .campo select:focus,
+        .campo textarea:focus{
+            border-color:#1687ff;
+            box-shadow:0 0 0 3px rgba(22,135,255,.08);
+        }
+
+        .btn{
+            border:none;
+            padding:12px 18px;
+            border-radius:10px;
+            color:#fff;
+            font-weight:bold;
+            transition:.2s;
+        }
+
+        .btn:hover{
+            transform:translateY(-1px);
+        }
+
+        .btn-azul{
+            background:linear-gradient(135deg,#0877ff,#00a6ff);
+        }
+
+        .btn-verde{
+            background:#159d63;
+        }
+
+        .btn-vermelho{
+            background:#bd3445;
+        }
+
+        .btn-cinza{
+            background:#202d41;
+        }
+
+        .acoes{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:18px;
+        }
+
+        .mensagem{
+            margin-top:15px;
+            font-size:13px;
+            color:#8ea0b7;
+        }
+
+        .lista{
+            display:grid;
+            gap:12px;
+        }
+
+        .item{
+            background:#081221;
+            border:1px solid #1b2a40;
+            border-radius:14px;
+            padding:17px;
+        }
+
+        .item-topo{
+            display:flex;
+            justify-content:space-between;
+            gap:15px;
+            align-items:flex-start;
+        }
+
+        .item h4{
+            font-size:16px;
+            margin-bottom:5px;
+        }
+
+        .item p{
+            color:#8290a5;
+            font-size:13px;
+            line-height:1.5;
+        }
+
+        .badge{
+            display:inline-block;
+            padding:5px 9px;
+            border-radius:20px;
+            font-size:10px;
+            background:rgba(22,135,255,.12);
+            color:#4aa4ff;
+            margin-bottom:8px;
+        }
+
+        .acoes-item{
+            display:flex;
+            flex-wrap:wrap;
+            gap:7px;
+            margin-top:13px;
+        }
+
+        .acoes-item button{
+            border:none;
+            padding:8px 11px;
+            border-radius:8px;
+            color:#fff;
+            font-size:11px;
+        }
+
+        .turma-selecionada{
+            border-color:rgba(22,135,255,.45);
+            box-shadow:0 0 30px rgba(22,135,255,.05);
+        }
+
+        .turma-lista{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:12px;
+        }
+
+        .turma-card{
+            cursor:pointer;
+            transition:.2s;
+        }
+
+        .turma-card:hover{
+            transform:translateY(-3px);
+        }
+
+        .turma-card.selecionada{
+            border-color:#1687ff;
+            box-shadow:0 0 25px rgba(22,135,255,.10);
+        }
+
+        .foto-chapa{
+            width:90px;
+            height:90px;
+            object-fit:cover;
+            border-radius:14px;
+            border:1px solid rgba(22,135,255,.35);
+            display:block;
+            margin-bottom:12px;
+        }
+
+        .foto-sem{
+            width:90px;
+            height:90px;
+            border-radius:14px;
+            border:1px dashed #34445c;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#66758a;
+            font-size:10px;
+            text-align:center;
+            margin-bottom:12px;
+        }
+
+        .preview-foto{
+            margin-top:12px;
+            padding:15px;
+            border:1px solid #24334a;
+            border-radius:14px;
+            background:#07101e;
+        }
+
+        .preview-foto img{
+            width:130px;
+            height:130px;
+            object-fit:cover;
+            border-radius:14px;
+            border:1px solid rgba(22,135,255,.4);
+        }
+
+        .preview-foto div{
+            color:#728197;
+            font-size:11px;
+            margin-top:8px;
+        }
+
+        .resultado-box{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+            gap:12px;
+        }
+
+        .resultado-card{
+            padding:18px;
+            background:#07101e;
+            border:1px solid #1b2a40;
+            border-radius:14px;
+        }
+
+        .resultado-card strong{
+            display:block;
+            font-size:24px;
+            color:#1687ff;
+            margin-top:6px;
+        }
+
+        .resultado-card span{
+            color:#8090a5;
+            font-size:12px;
+        }
+
+        .vazio{
+            color:#66758a;
+            text-align:center;
+            padding:30px;
+            border:1px dashed #27364b;
+            border-radius:14px;
+        }
+
+        @media(max-width:900px){
+
+            .sidebar{
+                position:relative;
+                width:100%;
+                height:auto;
+                border-right:none;
+                border-bottom:1px solid rgba(255,255,255,.06);
+            }
+
+            .conteudo{
+                margin-left:0;
+                padding:20px;
+            }
+
+            .menu{
+                display:flex;
+                overflow-x:auto;
+                gap:5px;
+            }
+
+            .menu-titulo{
+                display:none;
+            }
+
+            .menu button{
+                white-space:nowrap;
+            }
+
+            .sair{
+                margin-top:5px;
+            }
+        }
+
+        @media(max-width:650px){
+
+            .grid-form{
+                grid-template-columns:1fr;
+            }
+
+            .campo.full{
+                grid-column:auto;
+            }
+
+            .topo{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:12px;
+            }
+
+            .painel{
+                padding:18px;
+            }
+
+            .conteudo{
+                padding:15px;
+            }
+        }
 /* ==========================================
-   TELA DE LOGIN
+   RESULTADOS ADMIN
 ========================================== */
 
-#telaLogin {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 9999;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    background:
-        radial-gradient(
-            circle at center,
-            #1b1608 0%,
-            #090909 55%,
-            #050505 100%
-        );
-
-    padding: 20px;
+.resultado-resumo{
+    display:grid;
+    grid-template-columns:
+        repeat(3,1fr);
+    gap:14px;
+    margin-bottom:18px;
 }
 
-.login-card {
 
-    width: 100%;
+.resultado-resumo-item{
+    background:#0d1524;
+    border:1px solid #1d2d46;
+    border-radius:14px;
+    padding:18px;
+    text-align:center;
+}
 
-    max-width: 430px;
 
-    padding: 45px 38px;
+.resultado-resumo-item span{
+    display:block;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:1.5px;
+    color:#718198;
+    margin-bottom:8px;
+}
 
-    background: #111;
 
-    border:
-        1px solid #3a3017;
+.resultado-resumo-item strong{
+    font-size:25px;
+    color:#fff;
+}
 
-    border-radius: 18px;
 
+.resultado-status-admin{
+    display:inline-block;
+    padding:7px 12px;
+    border-radius:20px;
+    background:rgba(0,119,255,.10);
+    border:1px solid rgba(0,119,255,.25);
+    color:#4ba3ff;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:1px;
+    margin-bottom:14px;
+}
+
+
+.resultado-card{
+    position:relative;
+    overflow:hidden;
+    background:#0d1524;
+    border:1px solid #1d2d46;
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:14px;
+    transition:.25s;
+}
+
+
+.resultado-card:hover{
+    border-color:#0877ff;
+    transform:translateY(-2px);
     box-shadow:
-        0 25px 80px rgba(0,0,0,.65);
-
-    text-align: center;
+        0 10px 30px
+        rgba(0,119,255,.10);
 }
 
-.login-logo {
 
-    font-size: 30px;
-
-    font-weight: 900;
-
-    letter-spacing: 3px;
-
-    margin-bottom: 8px;
+.resultado-card-topo{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:20px;
 }
 
-.login-logo span {
 
-    color: #d4af37;
+.resultado-numero{
+    display:inline-block;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:1px;
+    color:#4ba3ff;
+    margin-bottom:7px;
 }
 
-.login-subtitulo {
 
-    color: #777;
-
-    font-size: 12px;
-
-    letter-spacing: 2px;
-
-    margin-bottom: 35px;
+.resultado-card h4{
+    margin:0;
+    font-size:18px;
+    color:#fff;
 }
 
-.login-card h1 {
 
-    font-size: 22px;
-
-    margin-bottom: 10px;
+.resultado-percentual{
+    font-size:25px;
+    color:#fff;
+    white-space:nowrap;
 }
 
-.login-card p {
 
-    color: #777;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-
-    margin-bottom: 25px;
+.resultado-representantes{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    margin-top:14px;
+    color:#8190a5;
+    font-size:12px;
 }
 
-.login-campo {
 
-    text-align: left;
-
-    margin-bottom: 15px;
+.resultado-representantes strong{
+    color:#dce5f2;
 }
 
-.login-campo label {
 
-    display: block;
-
-    color: #999;
-
-    font-size: 12px;
-
-    margin-bottom: 8px;
+.resultado-barra{
+    width:100%;
+    height:8px;
+    margin-top:17px;
+    background:#162236;
+    border-radius:20px;
+    overflow:hidden;
 }
 
-.login-campo input {
 
-    width: 100%;
-
-    height: 50px;
-
-    padding: 0 15px;
-
-    background: #080808;
-
-    border:
-        1px solid #303030;
-
-    border-radius: 9px;
-
-    color: #fff;
-
-    outline: none;
-
-    font-size: 15px;
-}
-
-.login-campo input:focus {
-
-    border-color: #d4af37;
-}
-
-.botao-login {
-
-    width: 100%;
-
-    height: 50px;
-
-    border: none;
-
-    border-radius: 9px;
-
-    background: #d4af37;
-
-    color: #000;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition: .25s;
-}
-
-.botao-login:hover {
-
-    background: #efc94c;
-
-    transform: translateY(-2px);
-}
-
-#mensagemLogin {
-
-    min-height: 20px;
-
-    margin-top: 15px;
-
-    color: #ff7777;
-
-    font-size: 13px;
-
-}
-
-#painelAdmin {
-
-    display: none;
-}
-
-/* ==========================================
-   CABEÇALHO
-========================================== */
-
-header {
-
-    height: 75px;
-
-    padding: 0 35px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    background: #0d0d0d;
-
-    border-bottom:
-        1px solid #222;
-}
-
-.logo {
-
-    font-size: 21px;
-
-    font-weight: 800;
-
-    letter-spacing: 2px;
-}
-
-.logo span {
-
-    color: #d4af37;
-}
-
-.header-direita {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 20px;
-}
-
-.painel {
-
-    color: #888;
-
-    font-size: 13px;
-}
-
-.botao-sair {
-
-    height: 38px;
-
-    padding: 0 16px;
-
-    background: transparent;
-
-    border:
-        1px solid #3a3a3a;
-
-    border-radius: 8px;
-
-    color: #aaa;
-
-    cursor: pointer;
-
-    font-size: 11px;
-
-    font-weight: bold;
-
-    transition: .25s;
-}
-
-.botao-sair:hover {
-
-    color: #d4af37;
-
-    border-color: #d4af37;
-}
-
-/* ==========================================
-   LAYOUT
-========================================== */
-
-.layout {
-
-    display: flex;
-
-    min-height:
-        calc(100vh - 75px);
-}
-
-aside {
-
-    width: 240px;
-
-    padding: 30px 18px;
-
-    background: #0d0d0d;
-
-    border-right:
-        1px solid #222;
-}
-
-.menu-titulo {
-
-    color: #666;
-
-    font-size: 11px;
-
-    font-weight: bold;
-
-    letter-spacing: 2px;
-
-    margin:
-        10px 12px 15px;
-}
-
-.menu {
-
-    width: 100%;
-
-    padding: 14px;
-
-    margin-bottom: 7px;
-
-    background: transparent;
-
-    border: 1px solid transparent;
-
-    border-radius: 9px;
-
-    color: #aaa;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    font-size: 14px;
-
-    transition: .25s;
-}
-
-.menu:hover,
-.menu.ativo {
-
-    background: #181818;
-
-    border-color: #292929;
-
-    color: #d4af37;
-}
-
-/* ==========================================
-   CONTEÚDO
-========================================== */
-
-main {
-
-    flex: 1;
-
-    padding: 45px;
-
-    max-width: 1200px;
-}
-
-.titulo {
-
-    margin-bottom: 35px;
-}
-
-.titulo small {
-
-    color: #d4af37;
-
-    font-size: 11px;
-
-    font-weight: bold;
-
-    letter-spacing: 2px;
-}
-
-.titulo h1 {
-
-    font-size: 38px;
-
-    margin-top: 8px;
-}
-
-.titulo p {
-
-    color: #777;
-
-    margin-top: 10px;
-}
-
-/* ==========================================
-   CARDS
-========================================== */
-
-.cards {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 18px;
-
-    margin-bottom: 25px;
-}
-
-.card {
-
-    padding: 25px;
-
-    background: #111;
-
-    border:
-        1px solid #252525;
-
-    border-radius: 14px;
-
-    transition: .25s;
-}
-
-.card:hover {
-
-    transform:
-        translateY(-3px);
-
-    border-color:
-        #3a3a3a;
-}
-
-.card span {
-
-    color: #777;
-
-    font-size: 12px;
-}
-
-.card strong {
-
-    display: block;
-
-    margin-top: 8px;
-
-    font-size: 30px;
-
-    color: #d4af37;
-}
-
-/* ==========================================
-   BLOCOS
-========================================== */
-
-.bloco {
-
-    background: #111;
-
-    border:
-        1px solid #252525;
-
-    border-radius: 16px;
-
-    padding: 30px;
-
-    margin-bottom: 25px;
-}
-
-.bloco h2 {
-
-    font-size: 21px;
-
-    margin-bottom: 25px;
-}
-
-.formulario {
-
-    display: flex;
-
-    gap: 12px;
-}
-
-input,
-select,
-textarea {
-
-    width: 100%;
-
-    padding: 0 15px;
-
-    background: #080808;
-
-    border:
-        1px solid #303030;
-
-    border-radius: 9px;
-
-    color: #fff;
-
-    outline: none;
-
-    font-size: 14px;
-}
-
-input,
-select {
-
-    height: 48px;
-}
-
-textarea {
-
-    min-height: 120px;
-
-    padding-top: 15px;
-
-    resize: vertical;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-
-    border-color:
-        #d4af37;
-}
-
-select {
-
-    cursor: pointer;
-}
-
-button.primario {
-
-    height: 48px;
-
-    padding:
-        0 25px;
-
-    border: none;
-
-    border-radius: 9px;
-
+.resultado-barra-preenchimento{
+    height:100%;
     background:
-        #d4af37;
-
-    color: #000;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition: .25s;
-
-    white-space: nowrap;
+        linear-gradient(
+            90deg,
+            #0877ff,
+            #00a6ff
+        );
+    border-radius:20px;
 }
 
-button.primario:hover {
 
-    background:
-        #efc94c;
-
-    transform:
-        translateY(-2px);
+.resultado-votos{
+    display:flex;
+    justify-content:space-between;
+    margin-top:9px;
+    font-size:11px;
+    color:#718198;
 }
 
-/* ==========================================
-   LISTAS
-========================================== */
 
-.lista {
+@media(max-width:700px){
 
-    display: flex;
+    .resultado-resumo{
+        grid-template-columns:1fr;
+    }
 
-    flex-direction:
-        column;
 
-    gap: 10px;
-}
+    .resultado-card-topo{
+        flex-direction:column;
+        gap:10px;
+    }
 
-.item {
 
-    padding: 18px;
-
-    background: #171717;
-
-    border:
-        1px solid #252525;
-
-    border-radius: 10px;
-
-    display: flex;
-
-    justify-content:
-        space-between;
-
-    align-items: center;
-
-    gap: 20px;
-}
-
-.item-info strong {
-
-    display: block;
-
-    margin-bottom: 5px;
-}
-
-.item-info span {
-
-    color: #777;
-
-    font-size: 12px;
-
-    line-height: 1.6;
-}
-
-/* ==========================================
-   CHAPAS
-========================================== */
-
-.numero-chapa {
-
-    width: 55px;
-
-    height: 55px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    flex-shrink: 0;
-
-    border:
-        1px solid #d4af37;
-
-    border-radius: 10px;
-
-    color: #d4af37;
-
-    font-size: 20px;
-
-    font-weight: bold;
-}
-
-.chapa-esquerda {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 18px;
-
-    min-width: 0;
-}
-
-.chapa-info {
-
-    min-width: 0;
-}
-
-.chapa-info strong {
-
-    font-size: 16px;
-
-    margin-bottom: 7px;
-}
-
-.chapa-info span {
-
-    display: block;
-
-    color: #888;
-
-    font-size: 12px;
-
-    line-height: 1.7;
-}
-
-.descricao-chapa {
-
-    margin-top: 8px;
-
-    color: #666 !important;
-
-    max-width: 700px;
-
-    white-space: normal;
-}
-
-/* ==========================================
-   STATUS
-========================================== */
-
-.status {
-
-    padding:
-        7px 12px;
-
-    border-radius: 20px;
-
-    font-size: 11px;
-
-    font-weight: bold;
-}
-
-.status.livre {
-
-    background:
-        rgba(50,180,100,.12);
-
-    color:
-        #57d98a;
-}
-
-.status.votou {
-
-    background:
-        rgba(220,70,70,.12);
-
-    color:
-        #ff7777;
-}
-
-.vazio {
-
-    padding: 30px;
-
-    text-align: center;
-
-    color: #666;
-
-    border:
-        1px dashed #292929;
-
-    border-radius: 10px;
-}
-
-.mensagem {
-
-    margin-top: 15px;
-
-    color: #d4af37;
-
-    font-size: 13px;
-}
-
-.linha-formulario {
-
-    display: grid;
-
-    grid-template-columns:
-        120px 1fr;
-
-    gap: 12px;
-
-    margin-bottom: 12px;
-}
-
-.campo-grande {
-
-    margin-bottom: 12px;
-}
-
-/* ==========================================
-   RESPONSIVO
-========================================== */
-.botao-excluir-turma {
-
-    height: 48px;
-
-    padding: 0 22px;
-
-    border:
-        1px solid #7a2929;
-
-    border-radius: 9px;
-
-    background: #160b0b;
-
-    color: #ff7777;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    white-space: nowrap;
-
-    transition: .25s;
-}
-
-.botao-excluir-turma:hover {
-
-    background: #301010;
-
-    border-color: #ff5555;
-
-    transform: translateY(-2px);
-}
-
-@media(max-width:900px) {
-
-    .cards {
-
-        grid-template-columns:
-            repeat(2, 1fr);
+    .resultado-percentual{
+        font-size:22px;
     }
 
 }
-
-@media(max-width:800px) {
-
-    header {
-
-        padding: 0 18px;
-    }
-
-    .painel {
-
-        display: none;
-    }
-
-    aside {
-
-        width: 75px;
-
-        padding:
-            20px 8px;
-    }
-
-    .menu {
-
-        font-size: 0;
-
-        text-align: center;
-    }
-
-    .menu-titulo {
-
-        display: none;
-    }
-
-    main {
-
-        padding: 25px;
-    }
-
-    .cards {
-
-        grid-template-columns:
-            1fr;
-    }
-
-    .formulario {
-
-        flex-direction:
-            column;
-    }
-
-    .linha-formulario {
-
-        grid-template-columns:
-            1fr;
-    }
-
-    .item {
-
-        align-items:
-            flex-start;
-
-    }
-
-    .chapa-esquerda {
-
-        align-items:
-            flex-start;
-    }
-
-}
-
-@media(max-width:600px) {
-
-    .titulo h1 {
-
-        font-size: 28px;
-    }
-
-    main {
-
-        padding: 18px;
-    }
-
-    .bloco {
-
-        padding: 20px;
-    }
-
-    #resumoAcompanhamento {
-
-        grid-template-columns: 1fr !important;
-    }
-
-}
-
-</style>
-
+    </style>
 </head>
-
 
 <body>
 
+<!-- ========================= -->
+<!-- LOGIN -->
+<!-- ========================= -->
 
-<!-- ==========================================
-     TELA DE LOGIN
-========================================== -->
+<div id="telaLogin" class="login-screen">
 
-<div id="telaLogin">
-
-    <div class="login-card">
+    <div class="login-box">
 
         <div class="login-logo">
-            JK <span>ELEIÇÕES</span>
-        </div>
 
-        <div class="login-subtitulo">
-            ÁREA ADMINISTRATIVA
-        </div>
+            <h1>JK ELEIÇÕES</h1>
 
-        <h1>
-            Acesso restrito
-        </h1>
-
-        <p>
-            Entre com a senha administrativa
-            para acessar o painel de controle
-            das eleições.
-        </p>
-
-        <div class="login-campo">
-
-            <label for="senhaAdmin">
-                SENHA ADMINISTRATIVA
-            </label>
-
-            <input
-                id="senhaAdmin"
-                type="password"
-                placeholder="Digite sua senha"
-                autocomplete="current-password"
-            >
+            <span>
+                PAINEL ADMINISTRATIVO
+            </span>
 
         </div>
+
+        <label for="senhaAdmin">
+            Senha administrativa
+        </label>
+
+        <input
+            id="senhaAdmin"
+            type="password"
+            placeholder="Digite sua senha"
+        >
 
         <button
-            class="botao-login"
-            onclick="entrarAdmin()"
+            class="btn-login"
+            onclick="entrar()"
         >
             ENTRAR NO PAINEL
         </button>
 
-        <div id="mensagemLogin"></div>
+        <div
+            id="erroLogin"
+            class="erro-login"
+        ></div>
 
     </div>
 
 </div>
 
 
-<!-- ==========================================
-     PAINEL ADMINISTRATIVO
-========================================== -->
+<!-- ========================= -->
+<!-- APLICAÇÃO -->
+<!-- ========================= -->
 
-<div id="painelAdmin">
-
-
-<header>
-
-    <div class="logo">
-
-        JK <span>ELEIÇÕES</span>
-
-    </div>
-
-    <div class="header-direita">
-
-        <div class="painel">
-
-            PAINEL ADMINISTRATIVO
-
-        </div>
-
-        <button
-            class="botao-sair"
-            onclick="sairAdmin()"
-        >
-            SAIR
-        </button>
-
-    </div>
-
-</header>
-
-
-<div class="layout">
-
-
-<aside>
-
-    <div class="menu-titulo">
-        Gerenciamento
-    </div>
-
-    <button class="menu ativo">
-        Turmas
-    </button>
-
-    <button class="menu">
-        Eleitores
-    </button>
-
-    <button class="menu">
-        Chapas
-    </button>
-
-    <button class="menu">
-        Eleição
-    </button>
-
-    <div class="menu-titulo">
-        Resultados
-    </div>
-
-    <button class="menu">
-        Resultados
-    </button>
-
-</aside>
-
-
-<main>
-
-
-<section class="titulo">
-
-    <small>
-        ADMINISTRAÇÃO
-    </small>
-
-    <h1>
-        Turmas, Eleitores e Chapas
-    </h1>
-
-    <p>
-        Gerencie as turmas, eleitores e
-        chapas participantes da eleição.
-    </p>
-
-</section>
-
-
-<section class="cards">
-
-    <div class="card">
-
-        <span>
-            TURMAS
-        </span>
-
-        <strong id="totalTurmas">
-            0
-        </strong>
-
-    </div>
-
-
-    <div class="card">
-
-        <span>
-            ELEITORES
-        </span>
-
-        <strong id="totalEleitores">
-            0
-        </strong>
-
-    </div>
-
-
-    <div class="card">
-
-        <span>
-            JÁ VOTARAM
-        </span>
-
-        <strong id="totalVotaram">
-            0
-        </strong>
-
-    </div>
-
-
-    <div class="card">
-
-        <span>
-            CHAPAS
-        </span>
-
-        <strong id="totalChapas">
-            0
-        </strong>
-
-    </div>
-
-</section>
-
-
-<!-- ==========================================
-     ACOMPANHAMENTO DA ELEIÇÃO
-========================================== -->
-
-<section
-    class="bloco"
-    id="blocoAcompanhamento"
+<div
+    id="app"
+    class="app"
 >
 
-    <h2>
-        Acompanhamento da eleição
-    </h2>
-    <div
-        id="painelStatusEleicao"
-        style="
-            background:#171717;
-            border:1px solid #252525;
-            border-radius:12px;
-            padding:20px;
-            margin-bottom:20px;
-        "
-    >
+    <!-- SIDEBAR -->
 
-        <div
-            style="
-                color:#777;
-                font-size:12px;
-                margin-bottom:8px;
-                letter-spacing:1px;
-            "
-        >
-            SELECIONE UMA TURMA
-        </div>
+    <aside class="sidebar">
 
-        <div
-            id="nomeTurmaAcompanhamento"
-            style="
-                color:#d4af37;
-                font-size:22px;
-                font-weight:bold;
-            "
-        >
-            Nenhuma turma selecionada
-        </div>
+        <div class="logo">
 
-        <div
-            id="statusAcompanhamento"
-            style="
-                color:#888;
-                margin-top:8px;
-                font-size:13px;
-            "
-        >
-            Selecione uma turma abaixo para acompanhar
-            a eleição.
-        </div>
+            <h1>JK ELEIÇÕES</h1>
 
-    </div>
-
-
-    <div
-        id="resumoAcompanhamento"
-        style="
-            display:grid;
-            grid-template-columns:
-                repeat(3,1fr);
-            gap:15px;
-            margin-bottom:20px;
-        "
-    >
-
-        <div
-            style="
-                background:#171717;
-                border:1px solid #252525;
-                border-radius:12px;
-                padding:20px;
-            "
-        >
-
-            <span
-                style="
-                    color:#777;
-                    font-size:11px;
-                "
-            >
-                ELEITORES
+            <span>
+                ADMINISTRAÇÃO
             </span>
 
-            <strong
-                id="acompTotalEleitores"
-                style="
-                    display:block;
-                    margin-top:8px;
-                    color:#d4af37;
-                    font-size:28px;
-                "
+        </div>
+
+        <div class="menu">
+
+            <div class="menu-titulo">
+                Principal
+            </div>
+
+            <button
+                class="ativo"
+                onclick="mostrarSecao('dashboard',this)"
             >
-                0
-            </strong>
+                Dashboard
+            </button>
+
+            <button
+                onclick="mostrarSecao('turmas',this)"
+            >
+                Turmas
+            </button>
+
+            <button
+                onclick="mostrarSecao('eleitores',this)"
+            >
+                Eleitores
+            </button>
+
+            <button
+                onclick="mostrarSecao('chapas',this)"
+            >
+                Chapas
+            </button>
+
+            <div class="menu-titulo">
+                Eleição
+            </div>
+
+            <button
+                onclick="mostrarSecao('eleicao',this)"
+            >
+                Configuração
+            </button>
+
+            <button
+                onclick="mostrarSecao('resultados',this)"
+            >
+                Resultados
+            </button>
+
+            <button
+                class="sair"
+                onclick="sair()"
+            >
+                Sair
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- CONTEÚDO -->
+
+    <main class="conteudo">
+
+        <div class="topo">
+
+            <div>
+
+                <h2 id="tituloSecao">
+                    Dashboard
+                </h2>
+
+            </div>
+
+            <div class="status">
+
+                <i></i>
+
+                Sistema conectado
+
+            </div>
 
         </div>
 
 
-        <div
-            style="
-                background:#171717;
-                border:1px solid #252525;
-                border-radius:12px;
-                padding:20px;
-            "
+        <!-- ========================= -->
+        <!-- DASHBOARD -->
+        <!-- ========================= -->
+
+        <section
+            id="secao-dashboard"
+            class="secao ativa"
         >
 
-            <span
-                style="
-                    color:#777;
-                    font-size:11px;
-                "
-            >
-                JÁ VOTARAM
-            </span>
+            <div class="cards">
 
-            <strong
-                id="acompTotalVotos"
-                style="
-                    display:block;
-                    margin-top:8px;
-                    color:#d4af37;
-                    font-size:28px;
-                "
-            >
-                0
-            </strong>
+                <div class="card">
 
-        </div>
+                    <div
+                        id="totalTurmasDashboard"
+                        class="numero"
+                    >
+                        0
+                    </div>
+
+                    <div class="texto">
+                        Turmas cadastradas
+                    </div>
+
+                </div>
+
+                <div class="card">
+
+                    <div
+                        id="totalEleitoresDashboard"
+                        class="numero"
+                    >
+                        0
+                    </div>
+
+                    <div class="texto">
+                        Eleitores cadastrados
+                    </div>
+
+                </div>
+
+                <div class="card">
+
+                    <div
+                        id="totalChapasDashboard"
+                        class="numero"
+                    >
+                        0
+                    </div>
+
+                    <div class="texto">
+                        Chapas cadastradas
+                    </div>
+
+                </div>
+
+                <div class="card">
+
+                    <div
+                        id="totalVotosDashboard"
+                        class="numero"
+                    >
+                        0
+                    </div>
+
+                    <div class="texto">
+                        Votos registrados
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="painel">
+
+                <h3>
+                    Visão geral
+                </h3>
+
+                <p style="color:#8492a7;line-height:1.7">
+
+                    Utilize o menu lateral para administrar
+                    as turmas, eleitores, chapas e
+                    configurações das eleições.
+
+                </p>
+
+            </div>
+
+        </section>
 
 
-        <div
-            style="
-                background:#171717;
-                border:1px solid #252525;
-                border-radius:12px;
-                padding:20px;
-            "
+        <!-- ========================= -->
+        <!-- TURMAS -->
+        <!-- ========================= -->
+
+        <section
+            id="secao-turmas"
+            class="secao"
         >
 
-            <span
-                style="
-                    color:#777;
-                    font-size:11px;
-                "
-            >
-                AINDA NÃO VOTARAM
-            </span>
+            <div class="painel">
 
-            <strong
-                id="acompNaoVotaram"
-                style="
-                    display:block;
-                    margin-top:8px;
-                    color:#d4af37;
-                    font-size:28px;
-                "
-            >
-                0
-            </strong>
+                <h3>
+                    Cadastrar turma
+                </h3>
 
-        </div>
+                <div class="grid-form">
 
-    </div>
+                    <div class="campo">
+
+                        <label>
+                            Nome da turma
+                        </label>
+
+                        <input
+                            id="nomeTurma"
+                            type="text"
+                            placeholder="Ex.: 2º EMTI 2"
+                        >
+
+                    </div>
+
+                    <div class="campo">
+
+                        <label>
+                            Letra
+                        </label>
+
+                        <input
+                            id="letraTurma"
+                            type="text"
+                            placeholder="Ex.: A"
+                            maxlength="5"
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="acoes">
+
+                    <button
+                        class="btn btn-azul"
+                        onclick="cadastrarTurma()"
+                    >
+                        CADASTRAR TURMA
+                    </button>
+
+                </div>
+
+                <div
+                    id="mensagemTurma"
+                    class="mensagem"
+                ></div>
+
+            </div>
 
 
-    <div
-        id="listaResultadosAdmin"
-        class="lista"
-    >
+            <div class="painel">
 
-        <div class="vazio">
+                <h3>
+                    Turmas cadastradas
+                </h3>
 
-            Selecione uma turma para
-            visualizar os votos.
+                <div
+                    id="listaTurmas"
+                    class="turma-lista"
+                ></div>
 
-        </div>
+            </div>
 
-    </div>
-
-
-    <button
-        class="primario"
-        onclick="atualizarAcompanhamento()"
-        style="margin-top:20px;"
-    >
-        ATUALIZAR RESULTADOS
-    </button>
-
-</section>
+        </section>
 
 
-<!-- ==========================================
-     CRIAR TURMA
-========================================== -->
+        <!-- ========================= -->
+        <!-- ELEITORES -->
+        <!-- ========================= -->
 
-<section class="bloco">
-
-    <h2>
-        Criar nova turma
-    </h2>
-
-    <div class="formulario">
-
-        <input
-            id="nomeTurma"
-            type="text"
-            placeholder="Ex.: 2º EMTI 2"
+        <section
+            id="secao-eleitores"
+            class="secao"
         >
 
-        <button
-            class="primario"
-            onclick="criarTurma()"
-        >
-            CRIAR TURMA
-        </button>
+            <div class="painel">
 
-    </div>
+                <h3>
+                    Turma selecionada
+                </h3>
 
-    <div
-        id="mensagemTurma"
-        class="mensagem"
-    ></div>
+                <div
+                    id="turmaEleitorSelecionada"
+                    class="vazio"
+                >
+                    Selecione uma turma na seção Turmas.
+                </div>
 
-</section>
-
-
-<!-- ==========================================
-     SELECIONAR TURMA
-========================================== -->
-
-<section class="bloco">
-
-    <h2>
-        Selecionar turma
-    </h2>
-
-    <div class="formulario">
-
-        <select
-            id="selectTurma"
-            onchange="selecionarTurma()"
-        >
-
-            <option value="">
-                Selecione uma turma
-            </option>
-
-        </select>
-
-        <button
-            class="botao-excluir-turma"
-            onclick="excluirTurma()"
-            type="button"
-        >
-            EXCLUIR TURMA
-        </button>
-
-    </div>
-
-    <div
-        id="mensagemExcluirTurma"
-        class="mensagem"
-    ></div>
-
-</section>
-
-<!-- ==========================================
-     CADASTRAR ELEITOR
-========================================== -->
-
-<section
-    class="bloco"
-    id="blocoEleitores"
-    style="display:none;"
->
-
-    <h2>
-        Cadastrar eleitor
-    </h2>
-
-    <div class="formulario">
-
-        <input
-            id="nomeEleitor"
-            type="text"
-            placeholder="Nome completo"
-        >
-
-        <input
-            id="cpfEleitor"
-            type="text"
-            maxlength="14"
-            placeholder="CPF"
-        >
-
-        <button
-            class="primario"
-            onclick="cadastrarEleitor()"
-        >
-            CADASTRAR
-        </button>
-
-    </div>
-
-    <div
-        id="mensagemEleitor"
-        class="mensagem"
-    ></div>
-
-</section>
+            </div>
 
 
-<!-- ==========================================
-     LISTA DE ELEITORES
-========================================== -->
+            <div class="painel">
 
-<section
-    class="bloco"
-    id="blocoLista"
->
+                <h3>
+                    Cadastrar eleitor
+                </h3>
 
-    <h2>
-        Eleitores
-    </h2>
+                <div class="grid-form">
 
-    <div
-        id="listaEleitores"
-        class="lista"
-    >
+                    <div class="campo">
 
-        <div class="vazio">
+                        <label>
+                            Nome do eleitor
+                        </label>
 
-            Selecione uma turma para
-            visualizar os eleitores.
+                        <input
+                            id="nomeEleitor"
+                            type="text"
+                            placeholder="Nome completo"
+                        >
 
-        </div>
+                    </div>
 
-    </div>
+                    <div class="campo">
 
-</section>
+                        <label>
+                            CPF
+                        </label>
+
+                        <input
+                            id="cpfEleitor"
+                            type="text"
+                            inputmode="numeric"
+                            maxlength="14"
+                            placeholder="000.000.000-00"
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="acoes">
+
+                    <button
+                        class="btn btn-azul"
+                        onclick="cadastrarEleitor()"
+                    >
+                        CADASTRAR ELEITOR
+                    </button>
+
+                </div>
+
+                <div
+                    id="mensagemEleitor"
+                    class="mensagem"
+                ></div>
+
+            </div>
 
 
-<!-- ==========================================
-     ELEIÇÃO
-========================================== -->
+            <div class="painel">
 
-<section
-    class="bloco"
-    id="blocoEleicao"
-    style="display:none;"
->
+                <h3>
+                    Eleitores da turma
+                </h3>
 
-    <h2>
-        Configurar eleição
-    </h2>
+                <div
+                    id="listaEleitores"
+                    class="lista"
+                ></div>
 
-    <div class="campo-grande">
+            </div>
 
-        <input
-            id="nomeEleicao"
-            type="text"
-            placeholder="Nome da eleição"
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- CHAPAS -->
+        <!-- ========================= -->
+
+        <section
+            id="secao-chapas"
+            class="secao"
         >
 
-    </div>
+            <div class="painel">
+
+                <h3>
+                    Turma selecionada
+                </h3>
+
+                <div
+                    id="turmaChapaSelecionada"
+                    class="vazio"
+                >
+                    Selecione uma turma na seção Turmas.
+                </div>
+
+            </div>
 
 
-    <div class="campo-grande">
+            <div class="painel">
 
-        <textarea
-            id="descricaoEleicao"
-            placeholder="Descrição da eleição"
-        ></textarea>
+                <h3>
+                    Cadastrar chapa
+                </h3>
 
-    </div>
+                <div class="grid-form">
 
+                    <div class="campo">
 
-    <div class="linha-formulario">
+                        <label>
+                            Número da chapa
+                        </label>
 
-        <div>
+                        <input
+                            id="numeroChapa"
+                            type="text"
+                            inputmode="numeric"
+                            placeholder="Ex.: 10"
+                        >
 
-            <label
-                style="
-                    display:block;
-                    color:#888;
-                    font-size:12px;
-                    margin-bottom:7px;
-                "
-            >
-                INÍCIO
-            </label>
-
-            <input
-                id="inicioEleicao"
-                type="datetime-local"
-            >
-
-        </div>
+                    </div>
 
 
-        <div>
+                    <div class="campo">
 
-            <label
-                style="
-                    display:block;
-                    color:#888;
-                    font-size:12px;
-                    margin-bottom:7px;
-                "
-            >
-                ENCERRAMENTO
-            </label>
+                        <label>
+                            Nome da chapa
+                        </label>
 
-            <input
-                id="fimEleicao"
-                type="datetime-local"
-            >
+                        <input
+                            id="nomeChapa"
+                            type="text"
+                            placeholder="Nome da chapa"
+                        >
 
-        </div>
-
-    </div>
+                    </div>
 
 
-    <div
-        style="
-            margin-top:20px;
-            display:flex;
-            align-items:center;
-            gap:12px;
-        "
-    >
+                    <div class="campo">
 
-        <input
-            id="ativaEleicao"
-            type="checkbox"
-            style="
-                width:18px;
-                height:18px;
-                accent-color:#d4af37;
-                cursor:pointer;
-            "
+                        <label>
+                            Representante
+                        </label>
+
+                        <input
+                            id="representanteChapa"
+                            type="text"
+                            placeholder="Nome do representante"
+                        >
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label>
+                            Vice
+                        </label>
+
+                        <input
+                            id="viceChapa"
+                            type="text"
+                            placeholder="Nome do vice"
+                        >
+
+                    </div>
+
+
+                    <div class="campo full">
+
+                        <label>
+                            Descrição
+                        </label>
+
+                        <textarea
+                            id="descricaoChapa"
+                            placeholder="Descrição da chapa..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- FOTO -->
+
+                    <div class="campo full">
+
+                        <label for="fotoChapa">
+                            FOTO DA CHAPA
+                        </label>
+
+                        <input
+                            id="fotoChapa"
+                            type="file"
+                            accept="image/*"
+                        >
+
+                        <div
+                            id="previewFotoChapa"
+                            class="preview-foto"
+                            style="display:none;"
+                        >
+
+                            <img
+                                id="imagemPreviewChapa"
+                                src=""
+                                alt="Prévia da foto da chapa"
+                            >
+
+                            <div>
+                                Prévia da foto selecionada
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="acoes">
+
+                    <button
+                        class="btn btn-azul"
+                        onclick="cadastrarChapa()"
+                    >
+                        CADASTRAR CHAPA
+                    </button>
+
+                </div>
+
+                <div
+                    id="mensagemChapa"
+                    class="mensagem"
+                ></div>
+
+            </div>
+
+
+            <div class="painel">
+
+                <h3>
+                    Chapas cadastradas
+                </h3>
+
+                <div
+                    id="listaChapas"
+                    class="lista"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- ELEIÇÃO -->
+        <!-- ========================= -->
+
+        <section
+            id="secao-eleicao"
+            class="secao"
         >
 
-        <label
-            for="ativaEleicao"
-            style="
-                color:#ccc;
-                cursor:pointer;
-            "
+            <div class="painel">
+
+                <h3>
+                    Turma selecionada
+                </h3>
+
+                <div
+                    id="turmaEleicaoSelecionada"
+                    class="vazio"
+                >
+                    Selecione uma turma na seção Turmas.
+                </div>
+
+            </div>
+
+
+            <div class="painel">
+
+                <h3>
+                    Configuração da eleição
+                </h3>
+
+                <div class="grid-form">
+
+                    <div class="campo">
+
+                        <label>
+                            Nome da eleição
+                        </label>
+
+                        <input
+                            id="nomeEleicao"
+                            type="text"
+                            placeholder="Eleição de Representantes"
+                        >
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label>
+                            Status
+                        </label>
+
+                        <select id="ativaEleicao">
+
+                            <option value="false">
+                                Encerrada
+                            </option>
+
+                            <option value="true">
+                                Ativa
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label>
+                            Início
+                        </label>
+
+                        <input
+                            id="inicioEleicao"
+                            type="datetime-local"
+                        >
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label>
+                            Fim
+                        </label>
+
+                        <input
+                            id="fimEleicao"
+                            type="datetime-local"
+                        >
+
+                    </div>
+
+
+                    <div class="campo full">
+
+                        <label>
+                            Descrição
+                        </label>
+
+                        <textarea
+                            id="descricaoEleicao"
+                            placeholder="Descrição da eleição..."
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div class="acoes">
+
+                    <button
+                        class="btn btn-azul"
+                        onclick="salvarEleicao()"
+                    >
+                        SALVAR CONFIGURAÇÃO
+                    </button>
+
+                </div>
+
+                <div
+                    id="mensagemEleicao"
+                    class="mensagem"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- RESULTADOS -->
+        <!-- ========================= -->
+
+        <section
+            id="secao-resultados"
+            class="secao"
         >
-            Eleição ativa
-        </label>
 
-    </div>
+            <div class="painel">
 
+                <h3>
+                    Resultados
+                </h3>
 
-    <button
-        class="primario"
-        onclick="salvarEleicao()"
-        style="margin-top:20px;"
-    >
-        SALVAR ELEIÇÃO
-    </button>
+                <div
+                    id="resultadosAdmin"
+                    class="resultado-box"
+                ></div>
 
+            </div>
 
-    <div
-        id="mensagemEleicao"
-        class="mensagem"
-    ></div>
+        </section>
 
-
-    <div
-        id="statusEleicao"
-        style="
-            margin-top:15px;
-            padding:14px;
-            border-radius:9px;
-            background:#171717;
-            border:1px solid #252525;
-            color:#888;
-        "
-    >
-        Nenhuma eleição configurada.
-    </div>
-
-</section>
-
-
-<!-- ==========================================
-     CHAPAS
-========================================== -->
-
-<section
-    class="bloco"
-    id="blocoChapas"
-    style="display:none;"
->
-
-    <h2>
-        Cadastrar chapa
-    </h2>
-
-    <div class="linha-formulario">
-
-        <input
-            id="numeroChapa"
-            type="number"
-            min="1"
-            placeholder="Nº da chapa"
-        >
-
-        <input
-            id="nomeChapa"
-            type="text"
-            placeholder="Nome da chapa"
-        >
-
-    </div>
-
-
-    <div class="linha-formulario">
-
-        <input
-            id="representanteChapa"
-            type="text"
-            placeholder="Nome do representante"
-        >
-
-        <input
-            id="viceChapa"
-            type="text"
-            placeholder="Nome do vice-representante"
-        >
-
-    </div>
-
-
-    <div class="campo-grande">
-
-        <textarea
-            id="descricaoChapa"
-            placeholder="Descrição ou propostas da chapa"
-        ></textarea>
-
-    </div>
-
-
-    <button
-        class="primario"
-        onclick="cadastrarChapa()"
-    >
-        CADASTRAR CHAPA
-    </button>
-
-
-    <div
-        id="mensagemChapa"
-        class="mensagem"
-    ></div>
-
-</section>
-
-
-<!-- ==========================================
-     LISTA DE CHAPAS
-========================================== -->
-
-<section
-    class="bloco"
-    id="blocoListaChapas"
-    style="display:none;"
->
-
-    <h2>
-        Chapas cadastradas
-    </h2>
-
-
-    <div
-        id="listaChapas"
-        class="lista"
-    >
-
-        <div class="vazio">
-
-            Nenhuma chapa cadastrada
-            nesta turma.
-
-        </div>
-
-    </div>
-
-</section>
-
-
-</main>
-
-</div>
+    </main>
 
 </div>
 
 
 <script>
 
-/* ==========================================
-   VARIÁVEIS
-========================================== */
+let turmaSelecionada = null;
 
 let turmas = [];
 
-let turmaSelecionada = null;
+let chapasDisponiveis = [];
 
 
 /* ==========================================
-   ELEMENTOS DE LOGIN
+   REQUISIÇÃO ADMINISTRATIVA
 ========================================== */
 
-const telaLogin =
-    document.getElementById("telaLogin");
+async function requisicaoAdmin(url, opcoes = {}){
 
-const painelAdmin =
-    document.getElementById("painelAdmin");
+    const resposta =
+        await fetch(url,{
+            ...opcoes,
+            credentials:"same-origin"
+        });
 
-const mensagemLogin =
-    document.getElementById("mensagemLogin");
+    if(resposta.status === 401){
 
-const senhaAdmin =
-    document.getElementById("senhaAdmin");
-
-
-/* ==========================================
-   MOSTRAR LOGIN
-========================================== */
-
-function mostrarLogin(mensagem = "") {
-
-    telaLogin.style.display = "flex";
-
-    painelAdmin.style.display = "none";
-
-    mensagemLogin.textContent = mensagem;
-
-    senhaAdmin.value = "";
-
-    setTimeout(() => {
-
-        senhaAdmin.focus();
-
-    }, 100);
-
-}
-
-
-/* ==========================================
-   MOSTRAR PAINEL
-========================================== */
-
-function mostrarPainel() {
-
-    telaLogin.style.display = "none";
-
-    painelAdmin.style.display = "block";
-
-}
-
-
-/* ==========================================
-   VERIFICAR SESSÃO
-========================================== */
-
-async function verificarSessao() {
-
-    try {
-
-        const resposta =
-            await fetch(
-                "/api/admin/sessao",
-                {
-                    credentials: "same-origin"
-                }
-            );
-
-        const dados =
-            await resposta.json();
-
-        if (
-            dados.autenticado === true
-        ) {
-
-            mostrarPainel();
-
-            await carregarTurmas();
-
-            return;
-
-        }
+        alert("Sua sessão administrativa expirou.");
 
         mostrarLogin();
 
+        throw new Error("UNAUTHORIZED");
     }
 
-    catch (erro) {
-
-        console.error(
-            "Erro ao verificar sessão:",
-            erro
-        );
-
-        mostrarLogin(
-            "Não foi possível conectar ao servidor."
-        );
-
-    }
-
+    return resposta;
 }
 
 
@@ -1873,459 +1605,269 @@ async function verificarSessao() {
    LOGIN
 ========================================== */
 
-async function entrarAdmin() {
+async function verificarSessao(){
 
-    const senha =
-        senhaAdmin.value;
+    try{
 
-    if (!senha) {
+        const resposta =
+            await fetch("/api/admin/sessao");
 
-        mensagemLogin.textContent =
-            "Digite a senha administrativa.";
+        const dados =
+            await resposta.json();
 
-        senhaAdmin.focus();
+        if(dados.autenticado){
 
-        return;
+            mostrarApp();
+
+            await carregarTudo();
+
+        }else{
+
+            mostrarLogin();
+
+        }
+
+    }catch(erro){
+
+        console.error(erro);
+
+        mostrarLogin();
 
     }
+}
 
 
-    mensagemLogin.style.color =
-        "#d4af37";
+async function entrar(){
 
-    mensagemLogin.textContent =
-        "Verificando acesso...";
+    const senha =
+        document.getElementById("senhaAdmin").value;
 
+    const erro =
+        document.getElementById("erroLogin");
 
-    try {
+    erro.textContent = "";
+
+    if(!senha){
+
+        erro.textContent =
+            "Digite a senha.";
+
+        return;
+    }
+
+    try{
 
         const resposta =
             await fetch(
                 "/api/admin/login",
                 {
-
-                    method: "POST",
-
-                    credentials: "same-origin",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
                     },
-
-                    body: JSON.stringify({
-                        senha: senha
+                    body:JSON.stringify({
+                        senha
                     })
-
                 }
             );
-
 
         const dados =
             await resposta.json();
 
+        if(!dados.sucesso){
 
-        if (!resposta.ok || !dados.sucesso) {
-
-            mensagemLogin.style.color =
-                "#ff7777";
-
-            mensagemLogin.textContent =
+            erro.textContent =
                 dados.mensagem ||
                 "Senha incorreta.";
 
-            senhaAdmin.value = "";
-
-            senhaAdmin.focus();
-
             return;
-
         }
 
+        document.getElementById("senhaAdmin").value = "";
 
-        mensagemLogin.style.color =
-            "#57d98a";
+        mostrarApp();
 
-        mensagemLogin.textContent =
-            "Acesso autorizado.";
+        await carregarTudo();
 
+    }catch(erro){
 
-        mostrarPainel();
+        console.error(erro);
 
-        await carregarTurmas();
-
-    }
-
-    catch (erro) {
-
-        console.error(
-            "Erro no login:",
-            erro
-        );
-
-        mensagemLogin.style.color =
-            "#ff7777";
-
-        mensagemLogin.textContent =
-            "Erro ao conectar com o servidor.";
+        erro.textContent =
+            "Erro ao conectar ao servidor.";
 
     }
 
 }
 
 
-/* ==========================================
-   ENTER NO CAMPO DE SENHA
-========================================== */
+async function sair(){
 
-senhaAdmin.addEventListener(
-    "keydown",
-    function(evento) {
-
-        if (
-            evento.key === "Enter"
-        ) {
-
-            entrarAdmin();
-
-        }
-
-    }
-);
-
-
-/* ==========================================
-   SAIR
-========================================== */
-
-async function sairAdmin() {
-
-    try {
+    try{
 
         await fetch(
             "/api/admin/logout",
             {
-                method: "POST",
-                credentials: "same-origin"
+                method:"POST"
             }
         );
 
-    }
+    }catch(erro){
 
-    catch (erro) {
-
-        console.error(
-            "Erro ao sair:",
-            erro
-        );
+        console.error(erro);
 
     }
 
+    mostrarLogin();
 
-    turmas = [];
+}
 
-    turmaSelecionada = null;
 
-    mostrarLogin(
-        "Você saiu do painel administrativo."
-    );
+function mostrarLogin(){
+
+    document.getElementById("telaLogin").style.display =
+        "flex";
+
+    document.getElementById("app").style.display =
+        "none";
+
+}
+
+
+function mostrarApp(){
+
+    document.getElementById("telaLogin").style.display =
+        "none";
+
+    document.getElementById("app").style.display =
+        "block";
 
 }
 
 
 /* ==========================================
-   REQUISIÇÃO ADMINISTRATIVA
+   MENU
 ========================================== */
 
-async function requisicaoAdmin(
-    url,
-    opcoes = {}
-) {
+function mostrarSecao(nome, botao){
 
-    const resposta =
-        await fetch(
-            url,
-            {
-                ...opcoes,
-                credentials:
-                    "same-origin"
-            }
-        );
+    document
+        .querySelectorAll(".secao")
+        .forEach(secao => {
+            secao.classList.remove("ativa");
+        });
 
+    document
+        .getElementById("secao-" + nome)
+        .classList.add("ativa");
 
-    if (
-        resposta.status === 401
-    ) {
+    document
+        .querySelectorAll(".menu button")
+        .forEach(btn => {
+            btn.classList.remove("ativo");
+        });
 
-        mostrarLogin(
-            "Sua sessão expirou. Faça login novamente."
-        );
+    if(botao){
 
-        throw new Error(
-            "UNAUTHORIZED"
-        );
+        botao.classList.add("ativo");
 
     }
 
+    const titulos = {
 
-    return resposta;
+        dashboard:"Dashboard",
+
+        turmas:"Turmas",
+
+        eleitores:"Eleitores",
+
+        chapas:"Chapas",
+
+        eleicao:"Configuração da Eleição",
+
+        resultados:"Resultados"
+
+    };
+
+    document.getElementById("tituloSecao").textContent =
+        titulos[nome] || "Administração";
+
+    if(nome === "eleitores"){
+
+        carregarEleitores();
+
+    }
+
+    if(nome === "chapas"){
+
+        carregarChapas();
+
+    }
+
+    if(nome === "eleicao"){
+
+        carregarEleicao();
+
+    }
+
+    if(nome === "resultados"){
+
+        carregarResultadosAdmin();
+
+    }
 
 }
 
 
 /* ==========================================
-   CARREGAR TURMAS
+   CARREGAR TUDO
 ========================================== */
 
-async function carregarTurmas() {
+async function carregarTudo(){
 
-    try {
+    await carregarTurmas();
+
+    atualizarDashboard();
+
+}
+
+
+/* ==========================================
+   TURMAS
+========================================== */
+
+async function carregarTurmas(){
+
+    try{
 
         const resposta =
             await requisicaoAdmin(
                 "/api/admin/turmas"
             );
 
-
         const dados =
             await resposta.json();
 
+        if(!dados.sucesso){
 
-        if (!resposta.ok) {
-
-            throw new Error(
-                dados.mensagem ||
-                "Erro ao carregar turmas."
-            );
+            return;
 
         }
-
 
         turmas =
             dados.turmas || [];
 
+        renderizarTurmas();
 
-        const select =
-            document.getElementById(
-                "selectTurma"
-            );
+        atualizarDashboard();
 
+    }catch(erro){
 
-        select.innerHTML = `
-            <option value="">
-                Selecione uma turma
-            </option>
-        `;
-
-
-        turmas.forEach(
-            turma => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-                option.value =
-                    turma.id;
-
-                option.textContent =
-                    turma.nome;
-
-                select.appendChild(
-                    option
-                );
-
-            }
-        );
-
-
-        atualizarResumo();
-
-    }
-
-    catch (erro) {
-
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
+        if(erro.message === "UNAUTHORIZED"){
 
             return;
 
         }
-
-        console.error(
-            "Erro ao carregar turmas:",
-            erro
-        );
-
-    }
-
-}
-
-
-/* ==========================================
-   RESUMO
-========================================== */
-
-function atualizarResumo() {
-
-    document.getElementById(
-        "totalTurmas"
-    ).textContent =
-        turmas.length;
-
-
-    let total = 0;
-
-    let votaram = 0;
-
-    let chapas = 0;
-
-
-    turmas.forEach(
-        turma => {
-
-            const eleitores =
-                turma.eleitores || [];
-
-            const listaChapas =
-                turma.chapas || [];
-
-
-            eleitores.forEach(
-                eleitor => {
-
-                    total++;
-
-                    if (
-                        eleitor.votou
-                    ) {
-
-                        votaram++;
-
-                    }
-
-                }
-            );
-
-
-            chapas +=
-                listaChapas.length;
-
-        }
-    );
-
-
-    document.getElementById(
-        "totalEleitores"
-    ).textContent =
-        total;
-
-
-    document.getElementById(
-        "totalVotaram"
-    ).textContent =
-        votaram;
-
-
-    document.getElementById(
-        "totalChapas"
-    ).textContent =
-        chapas;
-
-}
-
-
-/* ==========================================
-   CRIAR TURMA
-========================================== */
-
-async function criarTurma() {
-
-    const campo =
-        document.getElementById(
-            "nomeTurma"
-        );
-
-
-    const mensagem =
-        document.getElementById(
-            "mensagemTurma"
-        );
-
-
-    const nome =
-        campo.value.trim();
-
-
-    if (!nome) {
-
-        mensagem.textContent =
-            "Digite o nome da turma.";
-
-        return;
-
-    }
-
-
-    try {
-
-        const resposta =
-            await requisicaoAdmin(
-                "/api/turmas",
-                {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        nome: nome
-                    })
-
-                }
-            );
-
-
-        const dados =
-            await resposta.json();
-
-
-        mensagem.textContent =
-            dados.mensagem ||
-            "Operação concluída.";
-
-
-        if (
-            dados.sucesso
-        ) {
-
-            campo.value = "";
-
-            await carregarTurmas();
-
-        }
-
-    }
-
-    catch (erro) {
-
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
-
-            return;
-
-        }
-
-        mensagem.textContent =
-            "Erro ao conectar com o servidor.";
 
         console.error(erro);
 
@@ -2334,259 +1876,430 @@ async function criarTurma() {
 }
 
 
-/* ==========================================
-   SELECIONAR TURMA
-========================================== */
+function renderizarTurmas(){
 
-async function selecionarTurma() {
+    const lista =
+        document.getElementById("listaTurmas");
 
-    const id =
-        document.getElementById(
-            "selectTurma"
-        ).value;
+    lista.innerHTML = "";
 
+    if(!turmas.length){
 
-    const blocoEleitores =
-        document.getElementById(
-            "blocoEleitores"
-        );
+        lista.innerHTML =
+            `<div class="vazio">
+                Nenhuma turma cadastrada.
+            </div>`;
 
-    const blocoChapas =
-        document.getElementById(
-            "blocoChapas"
-        );
+        return;
+    }
 
-    const blocoEleicao =
-        document.getElementById(
-            "blocoEleicao"
-        );
+    turmas.forEach(turma => {
 
-    const blocoListaChapas =
-        document.getElementById(
-            "blocoListaChapas"
-        );
+        const card =
+            document.createElement("div");
 
+        card.className =
+            "card turma-card" +
+            (
+                turmaSelecionada &&
+                turmaSelecionada.id === turma.id
+                    ? " selecionada"
+                    : ""
+            );
 
-    if (!id) {
+        card.innerHTML = `
 
-        turmaSelecionada = null;
+            <div class="badge">
+                TURMA
+            </div>
 
+            <h3>
+                ${escaparHTML(turma.nome || "")}
+            </h3>
 
-        blocoEleitores.style.display =
-            "none";
+            <p style="color:#8190a5;margin-top:6px">
+                Letra:
+                ${escaparHTML(turma.letra || "-")}
+            </p>
 
-        blocoEleicao.style.display =
-            "none";
+            <div class="acoes-item">
 
-        blocoChapas.style.display =
-            "none";
+                <button
+                    style="background:#0877ff"
+                    onclick="selecionarTurma('${turma.id}')"
+                >
+                    SELECIONAR
+                </button>
 
-        blocoListaChapas.style.display =
-            "none";
-
-
-        document.getElementById(
-            "listaEleitores"
-        ).innerHTML = `
-
-            <div class="vazio">
-
-                Selecione uma turma para
-                visualizar os eleitores.
+                <button
+                    style="background:#a72f3e"
+                    onclick="excluirTurma('${turma.id}')"
+                >
+                    EXCLUIR
+                </button>
 
             </div>
 
         `;
 
+        lista.appendChild(card);
 
-        atualizarAcompanhamento();
+    });
+
+}
+
+
+async function cadastrarTurma(){
+
+    const nome =
+        document.getElementById("nomeTurma").value.trim();
+
+    const letra =
+        document.getElementById("letraTurma").value.trim();
+
+    const mensagem =
+        document.getElementById("mensagemTurma");
+
+    if(!nome || !letra){
+
+        mensagem.textContent =
+            "Preencha o nome e a letra da turma.";
+
+        return;
+    }
+
+    try{
+
+        const resposta =
+            await requisicaoAdmin(
+                "/api/turmas",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify({
+                        nome,
+                        letra
+                    })
+                }
+            );
+
+        const dados =
+            await resposta.json();
+
+        mensagem.textContent =
+            dados.mensagem ||
+            "Operação concluída.";
+
+        if(dados.sucesso){
+
+            document.getElementById("nomeTurma").value = "";
+
+            document.getElementById("letraTurma").value = "";
+
+            await carregarTurmas();
+
+        }
+
+    }catch(erro){
+
+        if(erro.message === "UNAUTHORIZED"){
+
+            return;
+
+        }
+
+        console.error(erro);
+
+        mensagem.textContent =
+            "Erro ao conectar ao servidor.";
+
+    }
+
+}
+
+
+async function excluirTurma(id){
+
+    if(!confirm(
+        "Tem certeza que deseja excluir esta turma?"
+    )){
 
         return;
 
     }
 
+    try{
+
+        const resposta =
+            await requisicaoAdmin(
+                `/api/turmas/${id}`,
+                {
+                    method:"DELETE"
+                }
+            );
+
+        const dados =
+            await resposta.json();
+
+        if(!dados.sucesso){
+
+            alert(
+                dados.mensagem ||
+                "Não foi possível excluir."
+            );
+
+            return;
+
+        }
+
+        if(
+            turmaSelecionada &&
+            turmaSelecionada.id === id
+        ){
+
+            turmaSelecionada = null;
+
+        }
+
+        await carregarTurmas();
+
+        limparSelecoes();
+
+    }catch(erro){
+
+        if(erro.message === "UNAUTHORIZED"){
+
+            return;
+
+        }
+
+        console.error(erro);
+
+        alert(
+            "Erro ao conectar ao servidor."
+        );
+
+    }
+
+}
+
+
+function selecionarTurma(id){
 
     turmaSelecionada =
         turmas.find(
             turma =>
-                turma.id === id
+                String(turma.id) === String(id)
         );
 
+    if(!turmaSelecionada){
 
-    blocoEleitores.style.display =
-        "block";
+        return;
 
-    blocoChapas.style.display =
-        "block";
+    }
 
-    blocoEleicao.style.display =
-        "block";
+    renderizarTurmas();
 
-    blocoListaChapas.style.display =
-        "block";
+    atualizarSelecoes();
+
+    carregarEleitores();
+
+    carregarChapas();
+
+    carregarEleicao();
+
+    carregarResultadosAdmin();
+
+}
 
 
-    await carregarEleitores();
+function atualizarSelecoes(){
 
-    await carregarChapas();
+    const nome =
+        turmaSelecionada
+            ? `${turmaSelecionada.nome} - ${turmaSelecionada.letra}`
+            : "Nenhuma turma selecionada.";
 
-    await carregarEleicao();
+    document.getElementById(
+        "turmaEleitorSelecionada"
+    ).textContent = nome;
 
-    await atualizarAcompanhamento();
+    document.getElementById(
+        "turmaChapaSelecionada"
+    ).textContent = nome;
+
+    document.getElementById(
+        "turmaEleicaoSelecionada"
+    ).textContent = nome;
+
+}
+
+
+function limparSelecoes(){
+
+    document.getElementById(
+        "turmaEleitorSelecionada"
+    ).textContent =
+        "Selecione uma turma na seção Turmas.";
+
+    document.getElementById(
+        "turmaChapaSelecionada"
+    ).textContent =
+        "Selecione uma turma na seção Turmas.";
+
+    document.getElementById(
+        "turmaEleicaoSelecionada"
+    ).textContent =
+        "Selecione uma turma na seção Turmas.";
 
 }
 
 
 /* ==========================================
-   CARREGAR ELEITORES
+   ELEITORES
 ========================================== */
 
-async function carregarEleitores() {
+async function carregarEleitores(){
 
-    if (!turmaSelecionada) {
+    const lista =
+        document.getElementById(
+            "listaEleitores"
+        );
+
+    if(!turmaSelecionada){
+
+        lista.innerHTML =
+            `<div class="vazio">
+                Selecione uma turma primeiro.
+            </div>`;
 
         return;
 
     }
 
-
-    try {
+    try{
 
         const resposta =
             await requisicaoAdmin(
                 `/api/turmas/${turmaSelecionada.id}/eleitores`
             );
 
-
         const dados =
             await resposta.json();
 
+        lista.innerHTML = "";
 
-        const lista =
-            document.getElementById(
-                "listaEleitores"
-            );
+        const eleitores =
+            dados.eleitores || [];
 
+        if(!eleitores.length){
 
-        if (
-            !dados.sucesso ||
-            !dados.eleitores ||
-            dados.eleitores.length === 0
-        ) {
+            lista.innerHTML =
+                `<div class="vazio">
+                    Nenhum eleitor cadastrado.
+                </div>`;
 
-            lista.innerHTML = `
+            return;
 
-                <div class="vazio">
+        }
 
-                    Nenhum eleitor cadastrado
-                    nesta turma.
+        eleitores.forEach(eleitor => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "item";
+
+            item.innerHTML = `
+
+                <div class="item-topo">
+
+                    <div>
+
+                        <h4>
+                            ${escaparHTML(
+                                eleitor.nome || ""
+                            )}
+                        </h4>
+
+                        <p>
+                            CPF:
+                            ${escaparHTML(
+                                eleitor.cpf || ""
+                            )}
+                        </p>
+
+                    </div>
+
+                    <span class="badge">
+
+                        ${
+                            eleitor.votou
+                                ? "VOTOU"
+                                : "NÃO VOTOU"
+                        }
+
+                    </span>
 
                 </div>
 
             `;
 
+            lista.appendChild(item);
+
+        });
+
+    }catch(erro){
+
+        if(erro.message === "UNAUTHORIZED"){
+
             return;
 
         }
 
+        console.error(erro);
 
         lista.innerHTML =
-            dados.eleitores
-            .map(
-                eleitor => `
-
-                <div class="item">
-
-                    <div class="item-info">
-
-                        <strong>
-                            ${escaparHTML(
-                                eleitor.nome
-                            )}
-                        </strong>
-
-                        <span>
-                            CPF cadastrado
-                        </span>
-
-                    </div>
-
-                    <div class="
-                        status
-                        ${eleitor.votou
-                            ? "votou"
-                            : "livre"}
-                    ">
-
-                        ${
-                            eleitor.votou
-                            ? "JÁ VOTOU"
-                            : "NÃO VOTOU"
-                        }
-
-                    </div>
-
-                </div>
-
-            `
-            )
-            .join("");
-
-    }
-
-    catch (erro) {
-
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
-
-            return;
-
-        }
-
-        console.error(
-            "Erro ao carregar eleitores:",
-            erro
-        );
+            `<div class="vazio">
+                Erro ao carregar eleitores.
+            </div>`;
 
     }
 
 }
 
 
-/* ==========================================
-   CADASTRAR ELEITOR
-========================================== */
+async function cadastrarEleitor(){
 
-async function cadastrarEleitor() {
+    if(!turmaSelecionada){
 
-    if (!turmaSelecionada) {
+        alert(
+            "Selecione uma turma primeiro."
+        );
 
         return;
 
     }
-
 
     const nome =
         document.getElementById(
             "nomeEleitor"
         ).value.trim();
 
-
     const cpf =
         document.getElementById(
             "cpfEleitor"
-        ).value;
-
+        ).value.trim();
 
     const mensagem =
         document.getElementById(
             "mensagemEleitor"
         );
 
-
-    if (!nome || !cpf) {
+    if(!nome || !cpf){
 
         mensagem.textContent =
             "Preencha nome e CPF.";
@@ -2595,45 +2308,31 @@ async function cadastrarEleitor() {
 
     }
 
-
-    try {
+    try{
 
         const resposta =
             await requisicaoAdmin(
                 `/api/turmas/${turmaSelecionada.id}/eleitores`,
                 {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
                     },
-
-                    body: JSON.stringify({
-
-                        nome: nome,
-
-                        cpf: cpf
-
+                    body:JSON.stringify({
+                        nome,
+                        cpf
                     })
-
                 }
             );
 
-
         const dados =
             await resposta.json();
-
 
         mensagem.textContent =
             dados.mensagem ||
             "Operação concluída.";
 
-
-        if (
-            dados.sucesso
-        ) {
+        if(dados.sucesso){
 
             document.getElementById(
                 "nomeEleitor"
@@ -2643,30 +2342,24 @@ async function cadastrarEleitor() {
                 "cpfEleitor"
             ).value = "";
 
+            await carregarEleitores();
 
             await carregarTurmas();
 
-            await carregarEleitores();
-
         }
 
-    }
+    }catch(erro){
 
-    catch (erro) {
-
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
+        if(erro.message === "UNAUTHORIZED"){
 
             return;
 
         }
 
-        mensagem.textContent =
-            "Erro ao conectar com o servidor.";
-
         console.error(erro);
+
+        mensagem.textContent =
+            "Erro ao conectar ao servidor.";
 
     }
 
@@ -2674,221 +2367,291 @@ async function cadastrarEleitor() {
 
 
 /* ==========================================
-   CARREGAR CHAPAS
+   MÁSCARA CPF
 ========================================== */
 
-async function carregarChapas() {
+document
+    .getElementById("cpfEleitor")
+    .addEventListener(
+        "input",
+        function(){
 
-    if (!turmaSelecionada) {
+            let valor =
+                this.value.replace(
+                    /\D/g,
+                    ""
+                );
+
+            valor =
+                valor.substring(
+                    0,
+                    11
+                );
+
+            if(valor.length > 9){
+
+                valor =
+                    valor.replace(
+                        /(\d{3})(\d{3})(\d{3})(\d{2})/,
+                        "$1.$2.$3-$4"
+                    );
+
+            }else if(valor.length > 6){
+
+                valor =
+                    valor.replace(
+                        /(\d{3})(\d{3})(\d{1,3})/,
+                        "$1.$2.$3"
+                    );
+
+            }else if(valor.length > 3){
+
+                valor =
+                    valor.replace(
+                        /(\d{3})(\d{1,3})/,
+                        "$1.$2"
+                    );
+
+            }
+
+            this.value = valor;
+
+        }
+    );
+
+
+/* ==========================================
+   CHAPAS
+========================================== */
+
+async function carregarChapas(){
+
+    const lista =
+        document.getElementById(
+            "listaChapas"
+        );
+
+    if(!turmaSelecionada){
+
+        lista.innerHTML =
+            `<div class="vazio">
+                Selecione uma turma primeiro.
+            </div>`;
 
         return;
 
     }
 
-
-    try {
+    try{
 
         const resposta =
             await requisicaoAdmin(
                 `/api/turmas/${turmaSelecionada.id}/chapas`
             );
 
-
         const dados =
             await resposta.json();
 
+        if(!dados.sucesso){
 
-        const lista =
-            document.getElementById(
-                "listaChapas"
-            );
+            lista.innerHTML =
+                `<div class="vazio">
+                    Não foi possível carregar as chapas.
+                </div>`;
 
+            return;
 
-        if (
-            !dados.sucesso ||
-            !dados.chapas ||
-            dados.chapas.length === 0
-        ) {
+        }
 
-            lista.innerHTML = `
+        chapasDisponiveis =
+            dados.chapas || [];
 
-                <div class="vazio">
+        lista.innerHTML = "";
 
-                    Nenhuma chapa cadastrada
-                    nesta turma.
+        if(!chapasDisponiveis.length){
+
+            lista.innerHTML =
+                `<div class="vazio">
+                    Nenhuma chapa cadastrada.
+                </div>`;
+
+            return;
+
+        }
+
+        chapasDisponiveis.forEach(chapa => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "item";
+
+            let fotoHTML = "";
+
+            if(chapa.foto){
+
+                fotoHTML = `
+
+                    <img
+                        class="foto-chapa"
+                        src="${escaparHTML(chapa.foto)}"
+                        alt="Foto da chapa"
+                        onerror="this.style.display='none'"
+                    >
+
+                `;
+
+            }else{
+
+                fotoHTML = `
+
+                    <div class="foto-sem">
+                        SEM FOTO
+                    </div>
+
+                `;
+
+            }
+
+            item.innerHTML = `
+
+                ${fotoHTML}
+
+                <div class="item-topo">
+
+                    <div>
+
+                        <span class="badge">
+                            CHAPA ${escaparHTML(
+                                String(chapa.numero || "")
+                            )}
+                        </span>
+
+                        <h4>
+                            ${escaparHTML(
+                                chapa.nome || ""
+                            )}
+                        </h4>
+
+                        <p>
+                            Representante:
+                            ${escaparHTML(
+                                chapa.representante || ""
+                            )}
+                        </p>
+
+                        <p>
+                            Vice:
+                            ${escaparHTML(
+                                chapa.vice || ""
+                            )}
+                        </p>
+
+                        ${
+                            chapa.descricao
+                                ? `
+                                    <p style="margin-top:8px">
+                                        ${escaparHTML(
+                                            chapa.descricao
+                                        )}
+                                    </p>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
+                    <span class="badge">
+                        ${Number(chapa.votos || 0)} votos
+                    </span>
 
                 </div>
 
             `;
 
+            lista.appendChild(item);
+
+        });
+
+    }catch(erro){
+
+        if(erro.message === "UNAUTHORIZED"){
+
             return;
 
         }
 
+        console.error(erro);
 
         lista.innerHTML =
-            dados.chapas
-            .map(
-                chapa => `
-
-                <div class="item">
-
-                    <div class="chapa-esquerda">
-
-                        <div class="numero-chapa">
-
-                            ${escaparHTML(
-                                chapa.numero
-                            )}
-
-                        </div>
-
-
-                        <div class="chapa-info">
-
-                            <strong>
-
-                                ${escaparHTML(
-                                    chapa.nome
-                                )}
-
-                            </strong>
-
-
-                            <span>
-
-                                Representante:
-                                ${escaparHTML(
-                                    chapa.representante
-                                )}
-
-                            </span>
-
-
-                            <span>
-
-                                Vice:
-                                ${escaparHTML(
-                                    chapa.vice
-                                )}
-
-                            </span>
-
-
-                            ${
-                                chapa.descricao
-                                ?
-                                `
-                                <span
-                                    class="descricao-chapa"
-                                >
-
-                                    ${escaparHTML(
-                                        chapa.descricao
-                                    )}
-
-                                </span>
-                                `
-                                :
-                                ""
-                            }
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="status livre">
-
-                        ${chapa.votos || 0}
-                        votos
-
-                    </div>
-
-                </div>
-
-            `
-            )
-            .join("");
-
-    }
-
-    catch (erro) {
-
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
-
-            return;
-
-        }
-
-        console.error(
-            "Erro ao carregar chapas:",
-            erro
-        );
+            `<div class="vazio">
+                Erro ao carregar chapas.
+            </div>`;
 
     }
 
 }
 
 
-/* ==========================================
-   CADASTRAR CHAPA
-========================================== */
+async function cadastrarChapa(){
 
-async function cadastrarChapa() {
+    if(!turmaSelecionada){
 
-    if (!turmaSelecionada) {
+        alert(
+            "Selecione uma turma primeiro."
+        );
 
         return;
 
     }
 
-
     const numero =
-        document.getElementById(
-            "numeroChapa"
-        ).value.trim();
-
+        document
+            .getElementById("numeroChapa")
+            .value
+            .trim();
 
     const nome =
-        document.getElementById(
-            "nomeChapa"
-        ).value.trim();
-
+        document
+            .getElementById("nomeChapa")
+            .value
+            .trim();
 
     const representante =
-        document.getElementById(
-            "representanteChapa"
-        ).value.trim();
-
+        document
+            .getElementById("representanteChapa")
+            .value
+            .trim();
 
     const vice =
-        document.getElementById(
-            "viceChapa"
-        ).value.trim();
-
+        document
+            .getElementById("viceChapa")
+            .value
+            .trim();
 
     const descricao =
-        document.getElementById(
-            "descricaoChapa"
-        ).value.trim();
+        document
+            .getElementById("descricaoChapa")
+            .value
+            .trim();
 
+    const arquivoFoto =
+        document
+            .getElementById("fotoChapa")
+            .files[0];
 
     const mensagem =
         document.getElementById(
             "mensagemChapa"
         );
 
-
-    if (
+    if(
         !numero ||
         !nome ||
         !representante ||
         !vice
-    ) {
+    ){
 
         mensagem.textContent =
             "Preencha número, nome, representante e vice.";
@@ -2898,37 +2661,78 @@ async function cadastrarChapa() {
     }
 
 
-    try {
+    if(
+        arquivoFoto &&
+        !arquivoFoto.type.startsWith("image/")
+    ){
+
+        mensagem.textContent =
+            "Selecione um arquivo de imagem válido.";
+
+        return;
+
+    }
+
+
+    if(
+        arquivoFoto &&
+        arquivoFoto.size > 5 * 1024 * 1024
+    ){
+
+        mensagem.textContent =
+            "A imagem deve ter no máximo 5 MB.";
+
+        return;
+
+    }
+
+
+    try{
+
+        const formulario =
+            new FormData();
+
+        formulario.append(
+            "numero",
+            numero
+        );
+
+        formulario.append(
+            "nome",
+            nome
+        );
+
+        formulario.append(
+            "representante",
+            representante
+        );
+
+        formulario.append(
+            "vice",
+            vice
+        );
+
+        formulario.append(
+            "descricao",
+            descricao
+        );
+
+        if(arquivoFoto){
+
+            formulario.append(
+                "foto",
+                arquivoFoto
+            );
+
+        }
+
 
         const resposta =
             await requisicaoAdmin(
                 `/api/turmas/${turmaSelecionada.id}/chapas`,
                 {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        numero: numero,
-
-                        nome: nome,
-
-                        representante:
-                            representante,
-
-                        vice:
-                            vice,
-
-                        descricao:
-                            descricao
-
-                    })
-
+                    method:"POST",
+                    body:formulario
                 }
             );
 
@@ -2942,9 +2746,7 @@ async function cadastrarChapa() {
             "Operação concluída.";
 
 
-        if (
-            dados.sucesso
-        ) {
+        if(dados.sucesso){
 
             document.getElementById(
                 "numeroChapa"
@@ -2966,6 +2768,17 @@ async function cadastrarChapa() {
                 "descricaoChapa"
             ).value = "";
 
+            document.getElementById(
+                "fotoChapa"
+            ).value = "";
+
+            document.getElementById(
+                "previewFotoChapa"
+            ).style.display = "none";
+
+            document.getElementById(
+                "imagemPreviewChapa"
+            ).src = "";
 
             await carregarTurmas();
 
@@ -2973,23 +2786,18 @@ async function cadastrarChapa() {
 
         }
 
-    }
+    }catch(erro){
 
-    catch (erro) {
-
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
+        if(erro.message === "UNAUTHORIZED"){
 
             return;
 
         }
 
-        mensagem.textContent =
-            "Erro ao conectar com o servidor.";
-
         console.error(erro);
+
+        mensagem.textContent =
+            "Erro ao conectar ao servidor.";
 
     }
 
@@ -2997,52 +2805,156 @@ async function cadastrarChapa() {
 
 
 /* ==========================================
-   CARREGAR ELEIÇÃO
+   PREVIEW DA FOTO
 ========================================== */
 
-async function carregarEleicao() {
+const fotoChapa =
+    document.getElementById(
+        "fotoChapa"
+    );
 
-    if (!turmaSelecionada) {
+const previewFotoChapa =
+    document.getElementById(
+        "previewFotoChapa"
+    );
+
+const imagemPreviewChapa =
+    document.getElementById(
+        "imagemPreviewChapa"
+    );
+
+
+fotoChapa.addEventListener(
+    "change",
+    function(){
+
+        const arquivo =
+            this.files[0];
+
+        if(!arquivo){
+
+            previewFotoChapa.style.display =
+                "none";
+
+            imagemPreviewChapa.src =
+                "";
+
+            return;
+
+        }
+
+        if(
+            !arquivo.type.startsWith(
+                "image/"
+            )
+        ){
+
+            alert(
+                "Selecione um arquivo de imagem."
+            );
+
+            this.value = "";
+
+            previewFotoChapa.style.display =
+                "none";
+
+            imagemPreviewChapa.src =
+                "";
+
+            return;
+
+        }
+
+        if(
+            arquivo.size >
+            5 * 1024 * 1024
+        ){
+
+            alert(
+                "A imagem deve ter no máximo 5 MB."
+            );
+
+            this.value = "";
+
+            previewFotoChapa.style.display =
+                "none";
+
+            imagemPreviewChapa.src =
+                "";
+
+            return;
+
+        }
+
+        const leitor =
+            new FileReader();
+
+        leitor.onload =
+            function(evento){
+
+                imagemPreviewChapa.src =
+                    evento.target.result;
+
+                previewFotoChapa.style.display =
+                    "block";
+
+            };
+
+        leitor.readAsDataURL(
+            arquivo
+        );
+
+    }
+);
+
+
+/* ==========================================
+   ELEIÇÃO
+========================================== */
+
+async function carregarEleicao(){
+
+    if(!turmaSelecionada){
 
         return;
 
     }
 
-
-    try {
+    try{
 
         const resposta =
             await requisicaoAdmin(
                 `/api/turmas/${turmaSelecionada.id}/eleicao`
             );
 
-
         const dados =
             await resposta.json();
 
-
-        if (!dados.sucesso) {
+        if(!dados.sucesso){
 
             return;
 
         }
 
-
         const eleicao =
-            dados.eleicao;
-
+            dados.eleicao || {};
 
         document.getElementById(
             "nomeEleicao"
         ).value =
             eleicao.nome || "";
 
-
         document.getElementById(
             "descricaoEleicao"
         ).value =
             eleicao.descricao || "";
 
+        document.getElementById(
+            "ativaEleicao"
+        ).value =
+            eleicao.ativa
+                ? "true"
+                : "false";
 
         document.getElementById(
             "inicioEleicao"
@@ -3051,7 +2963,6 @@ async function carregarEleicao() {
                 eleicao.inicio
             );
 
-
         document.getElementById(
             "fimEleicao"
         ).value =
@@ -3059,298 +2970,13 @@ async function carregarEleicao() {
                 eleicao.fim
             );
 
+    }catch(erro){
 
-        document.getElementById(
-            "ativaEleicao"
-        ).checked =
-            eleicao.ativa === true;
-
-
-        atualizarStatusEleicao(
-            eleicao
-        );
-
-    }
-
-    catch (erro) {
-
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
+        if(erro.message === "UNAUTHORIZED"){
 
             return;
 
         }
-
-        console.error(
-            "Erro ao carregar eleição:",
-            erro
-        );
-
-    }
-
-}
-
-
-/* ==========================================
-   FORMATAR DATA
-========================================== */
-
-function formatarDataInput(data) {
-
-    if (!data) {
-
-        return "";
-
-    }
-
-
-    const valor =
-        new Date(data);
-
-
-    if (
-        Number.isNaN(
-            valor.getTime()
-        )
-    ) {
-
-        return "";
-
-    }
-
-
-    const ano =
-        valor.getFullYear();
-
-
-    const mes =
-        String(
-            valor.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const dia =
-        String(
-            valor.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const hora =
-        String(
-            valor.getHours()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const minuto =
-        String(
-            valor.getMinutes()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
-
-}
-
-
-/* ==========================================
-   STATUS DA ELEIÇÃO
-========================================== */
-
-function atualizarStatusEleicao(
-    eleicao
-) {
-
-    const status =
-        document.getElementById(
-            "statusEleicao"
-        );
-
-
-    if (!eleicao.nome) {
-
-        status.textContent =
-            "Nenhuma eleição configurada.";
-
-        status.style.color =
-            "#888";
-
-        return;
-
-    }
-
-
-    if (eleicao.ativa) {
-
-        status.textContent =
-            "ELEIÇÃO ATIVA";
-
-        status.style.color =
-            "#57d98a";
-
-        return;
-
-    }
-
-
-    status.textContent =
-        "ELEIÇÃO INATIVA";
-
-    status.style.color =
-        "#ff7777";
-
-}
-
-
-/* ==========================================
-   SALVAR ELEIÇÃO
-========================================== */
-
-async function salvarEleicao() {
-
-    if (!turmaSelecionada) {
-
-        return;
-
-    }
-
-
-    const nome =
-        document.getElementById(
-            "nomeEleicao"
-        ).value.trim();
-
-
-    const descricao =
-        document.getElementById(
-            "descricaoEleicao"
-        ).value.trim();
-
-
-    const inicio =
-        document.getElementById(
-            "inicioEleicao"
-        ).value;
-
-
-    const fim =
-        document.getElementById(
-            "fimEleicao"
-        ).value;
-
-
-    const ativa =
-        document.getElementById(
-            "ativaEleicao"
-        ).checked;
-
-
-    const mensagem =
-        document.getElementById(
-            "mensagemEleicao"
-        );
-
-
-    if (
-        !nome ||
-        !inicio ||
-        !fim
-    ) {
-
-        mensagem.textContent =
-            "Preencha nome, início e encerramento.";
-
-        return;
-
-    }
-
-
-    try {
-
-        const resposta =
-            await requisicaoAdmin(
-                `/api/turmas/${turmaSelecionada.id}/eleicao`,
-                {
-
-                    method: "PUT",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        nome:
-                            nome,
-
-                        descricao:
-                            descricao,
-
-                        inicio:
-                            inicio,
-
-                        fim:
-                            fim,
-
-                        ativa:
-                            ativa
-
-                    })
-
-                }
-            );
-
-
-        const dados =
-            await resposta.json();
-
-
-        mensagem.textContent =
-            dados.mensagem ||
-            "Eleição salva.";
-
-
-        if (
-            dados.sucesso
-        ) {
-
-            atualizarStatusEleicao(
-                dados.eleicao
-            );
-
-            await carregarTurmas();
-
-        }
-
-    }
-
-    catch (erro) {
-
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
-
-            return;
-
-        }
-
-        mensagem.textContent =
-            "Erro ao conectar com o servidor.";
 
         console.error(erro);
 
@@ -3359,150 +2985,186 @@ async function salvarEleicao() {
 }
 
 
-/* ==========================================
-   MÁSCARA CPF
-========================================== */
+function formatarDataInput(valor){
 
-document
-    .getElementById("cpfEleitor")
-    .addEventListener(
-        "input",
-        function () {
+    if(!valor){
 
-            let valor =
-                this.value
-                .replace(/\D/g, "")
-                .slice(0, 11);
+        return "";
 
+    }
 
-            valor =
-                valor.replace(
-                    /(\d{3})(\d)/,
-                    "$1.$2"
-                );
+    try{
 
+        const data =
+            new Date(valor);
 
-            valor =
-                valor.replace(
-                    /(\d{3})(\d)/,
-                    "$1.$2"
-                );
+        if(isNaN(data.getTime())){
 
-
-            valor =
-                valor.replace(
-                    /(\d{3})(\d{1,2})$/,
-                    "$1-$2"
-                );
-
-
-            this.value =
-                valor;
+            return "";
 
         }
-    );
+
+        const ano =
+            data.getFullYear();
+
+        const mes =
+            String(
+                data.getMonth() + 1
+            ).padStart(2,"0");
+
+        const dia =
+            String(
+                data.getDate()
+            ).padStart(2,"0");
+
+        const hora =
+            String(
+                data.getHours()
+            ).padStart(2,"0");
+
+        const minuto =
+            String(
+                data.getMinutes()
+            ).padStart(2,"0");
+
+        return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+
+    }catch{
+
+        return "";
+
+    }
+
+}
+
+
+async function salvarEleicao(){
+
+    if(!turmaSelecionada){
+
+        alert(
+            "Selecione uma turma primeiro."
+        );
+
+        return;
+
+    }
+
+    const nome =
+        document
+            .getElementById("nomeEleicao")
+            .value
+            .trim();
+
+    const descricao =
+        document
+            .getElementById("descricaoEleicao")
+            .value
+            .trim();
+
+    const ativa =
+        document
+            .getElementById("ativaEleicao")
+            .value === "true";
+
+    const inicio =
+        document
+            .getElementById("inicioEleicao")
+            .value;
+
+    const fim =
+        document
+            .getElementById("fimEleicao")
+            .value;
+
+    const mensagem =
+        document.getElementById(
+            "mensagemEleicao"
+        );
+
+
+    try{
+
+        const resposta =
+            await requisicaoAdmin(
+                `/api/turmas/${turmaSelecionada.id}/eleicao`,
+                {
+                    method:"PUT",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify({
+                        nome,
+                        descricao,
+                        ativa,
+                        inicio:
+                            inicio || null,
+                        fim:
+                            fim || null
+                    })
+                }
+            );
+
+        const dados =
+            await resposta.json();
+
+        mensagem.textContent =
+            dados.mensagem ||
+            "Configuração salva.";
+
+    }catch(erro){
+
+        if(erro.message === "UNAUTHORIZED"){
+
+            return;
+
+        }
+
+        console.error(erro);
+
+        mensagem.textContent =
+            "Erro ao conectar ao servidor.";
+
+    }
+
+}
 
 
 /* ==========================================
-   ACOMPANHAMENTO
+   RESULTADOS
 ========================================== */
 
-async function atualizarAcompanhamento() {
+async function carregarResultadosAdmin(){
 
-    const nomeTurma =
+    const container =
         document.getElementById(
-            "nomeTurmaAcompanhamento"
+            "resultadosAdmin"
         );
 
 
-    const status =
-        document.getElementById(
-            "statusAcompanhamento"
-        );
+    if(!turmaSelecionada){
 
-
-    const totalEleitores =
-        document.getElementById(
-            "acompTotalEleitores"
-        );
-
-
-    const totalVotos =
-        document.getElementById(
-            "acompTotalVotos"
-        );
-
-
-    const naoVotaram =
-        document.getElementById(
-            "acompNaoVotaram"
-        );
-
-
-    const lista =
-        document.getElementById(
-            "listaResultadosAdmin"
-        );
-
-
-    if (!turmaSelecionada) {
-
-        nomeTurma.textContent =
-            "Nenhuma turma selecionada";
-
-
-        status.textContent =
-            "Selecione uma turma para acompanhar a eleição.";
-
-
-        totalEleitores.textContent =
-            "0";
-
-
-        totalVotos.textContent =
-            "0";
-
-
-        naoVotaram.textContent =
-            "0";
-
-
-        lista.innerHTML = `
-
-            <div class="vazio">
-
-                Selecione uma turma para
-                visualizar os votos.
-
-            </div>
-
-        `;
+        container.innerHTML =
+            `<div class="vazio">
+                Selecione uma turma primeiro.
+            </div>`;
 
         return;
 
     }
 
 
-    nomeTurma.textContent =
-        turmaSelecionada.nome;
-
-
-    lista.innerHTML = `
-
-        <div class="vazio">
-
+    container.innerHTML =
+        `<div class="vazio">
             Carregando resultados...
-
-        </div>
-
-    `;
+        </div>`;
 
 
-    try {
+    try{
 
         const resposta =
             await requisicaoAdmin(
-                `/api/turmas/${turmaSelecionada.id}/resultados`
+                `/api/admin/turmas/${turmaSelecionada.id}/resultados`
             );
 
 
@@ -3510,541 +3172,354 @@ async function atualizarAcompanhamento() {
             await resposta.json();
 
 
-        if (
-            !resposta.ok ||
-            !dados.sucesso
-        ) {
+        if(!resposta.ok || !dados.sucesso){
 
-            lista.innerHTML = `
-
-                <div class="vazio">
-
-                    ${
-                        escaparHTML(
-                            dados.mensagem ||
-                            "Não foi possível carregar os resultados."
-                        )
-                    }
-
-                </div>
-
-            `;
+            container.innerHTML =
+                `<div class="vazio">
+                    ${escaparHTML(
+                        dados.mensagem ||
+                        "Não foi possível carregar os resultados."
+                    )}
+                </div>`;
 
             return;
 
         }
 
 
-        const eleicao =
-            dados.eleicao;
+        const chapas =
+            dados.resultados ||
+            [];
 
 
-        /* STATUS */
-
-        if (
-            !eleicao ||
-            !eleicao.nome
-        ) {
-
-            status.textContent =
-                "Nenhuma eleição configurada.";
-
-            status.style.color =
-                "#888";
-
-        }
-
-        else {
-
-            const agora =
-                new Date();
-
-
-            const inicio =
-                new Date(
-                    eleicao.inicio
-                );
-
-
-            const fim =
-                new Date(
-                    eleicao.fim
-                );
-
-
-            if (!eleicao.ativa) {
-
-                status.textContent =
-                    "ELEIÇÃO INATIVA";
-
-                status.style.color =
-                    "#ff7777";
-
-            }
-
-            else if (
-                agora < inicio
-            ) {
-
-                status.textContent =
-                    "ELEIÇÃO CONFIGURADA — AINDA NÃO INICIADA";
-
-                status.style.color =
-                    "#d4af37";
-
-            }
-
-            else if (
-                agora > fim
-            ) {
-
-                status.textContent =
-                    "ELEIÇÃO ENCERRADA";
-
-                status.style.color =
-                    "#ff7777";
-
-            }
-
-            else {
-
-                status.textContent =
-                    "ELEIÇÃO ATIVA — VOTAÇÃO EM ANDAMENTO";
-
-                status.style.color =
-                    "#57d98a";
-
-            }
-
-        }
-
-
-        /* RESUMO */
-
-        totalEleitores.textContent =
-            dados.totalEleitores;
-
-
-        totalVotos.textContent =
-            dados.totalVotos;
-
-
-        naoVotaram.textContent =
-            Math.max(
-                0,
-                dados.totalEleitores -
-                dados.totalVotos
+        const totalVotos =
+            Number(
+                dados.totalVotos || 0
             );
 
 
-        /* RESULTADOS */
+        const totalEleitores =
+            Number(
+                dados.totalEleitores || 0
+            );
 
-        if (
-            !dados.resultados ||
-            dados.resultados.length === 0
-        ) {
 
-            lista.innerHTML = `
+        const participacao =
+            totalEleitores > 0
 
-                <div class="vazio">
+                ? (
+                    totalVotos /
+                    totalEleitores *
+                    100
+                ).toFixed(1)
 
-                    Nenhuma chapa cadastrada
-                    nesta turma.
+                : "0.0";
 
-                </div>
 
-            `;
+        if(!chapas.length){
+
+            container.innerHTML =
+                `<div class="vazio">
+                    Nenhuma chapa cadastrada nesta turma.
+                </div>`;
 
             return;
 
         }
 
 
-        lista.innerHTML =
-            dados.resultados
-            .map(
-                chapa => `
+        container.innerHTML = `
 
-                <div
-                    class="item"
-                    style="
-                        align-items:stretch;
-                        flex-direction:column;
-                    "
-                >
+            <div class="resultado-resumo">
 
-                    <div
-                        style="
-                            display:flex;
-                            justify-content:space-between;
-                            align-items:center;
-                            gap:15px;
-                        "
-                    >
+                <div class="resultado-resumo-item">
+
+                    <span>
+                        ELEITORES
+                    </span>
+
+                    <strong>
+                        ${totalEleitores}
+                    </strong>
+
+                </div>
+
+
+                <div class="resultado-resumo-item">
+
+                    <span>
+                        VOTOS
+                    </span>
+
+                    <strong>
+                        ${totalVotos}
+                    </strong>
+
+                </div>
+
+
+                <div class="resultado-resumo-item">
+
+                    <span>
+                        PARTICIPAÇÃO
+                    </span>
+
+                    <strong>
+                        ${participacao}%
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="resultado-status-admin">
+
+                ${
+                    dados.encerrada
+
+                        ? "ELEIÇÃO ENCERRADA"
+
+                        : "ELEIÇÃO EM ANDAMENTO"
+                }
+
+            </div>
+
+        `;
+
+
+        chapas.forEach(
+            (chapa, indice) => {
+
+                const votos =
+                    Number(
+                        chapa.votos || 0
+                    );
+
+
+                const porcentagem =
+                    Number(
+                        chapa.porcentagem || 0
+                    );
+
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "resultado-card";
+
+
+                card.innerHTML = `
+
+                    <div class="resultado-card-topo">
 
                         <div>
 
-                            <strong
-                                style="
-                                    color:#d4af37;
-                                    font-size:18px;
-                                "
-                            >
+                            <span class="resultado-numero">
 
                                 CHAPA
                                 ${escaparHTML(
-                                    chapa.numero
+                                    String(
+                                        chapa.numero || ""
+                                    )
                                 )}
 
-                            </strong>
+                            </span>
 
-                            <div
-                                style="
-                                    margin-top:5px;
-                                    font-size:17px;
-                                    font-weight:bold;
-                                "
-                            >
+
+                            <h4>
 
                                 ${escaparHTML(
-                                    chapa.nome
+                                    chapa.nome || ""
                                 )}
 
-                            </div>
-
-                            <div
-                                style="
-                                    margin-top:6px;
-                                    color:#777;
-                                    font-size:12px;
-                                "
-                            >
-
-                                Representante:
-                                ${escaparHTML(
-                                    chapa.representante
-                                )}
-
-                                <br>
-
-                                Vice:
-                                ${escaparHTML(
-                                    chapa.vice
-                                )}
-
-                            </div>
+                            </h4>
 
                         </div>
 
 
-                        <div
-                            style="
-                                text-align:right;
-                            "
-                        >
+                        <strong class="resultado-percentual">
 
-                            <strong
-                                style="
-                                    color:#d4af37;
-                                    font-size:30px;
-                                "
-                            >
+                            ${porcentagem.toFixed(1)}%
 
-                                ${chapa.votos}
-
-                            </strong>
-
-                            <div
-                                style="
-                                    color:#777;
-                                    font-size:11px;
-                                "
-                            >
-
-                                ${chapa.porcentagem}%
-
-                            </div>
-
-                        </div>
+                        </strong>
 
                     </div>
 
 
-                    <div
-                        style="
-                            width:100%;
-                            height:8px;
-                            margin-top:15px;
-                            background:#292929;
-                            border-radius:20px;
-                            overflow:hidden;
-                        "
-                    >
+                    <div class="resultado-representantes">
+
+                        <span>
+
+                            Representante:
+                            <strong>
+                                ${escaparHTML(
+                                    chapa.representante ||
+                                    "Não informado"
+                                )}
+                            </strong>
+
+                        </span>
+
+
+                        <span>
+
+                            Vice:
+                            <strong>
+                                ${escaparHTML(
+                                    chapa.vice ||
+                                    "Não informado"
+                                )}
+                            </strong>
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="resultado-barra">
 
                         <div
-                            style="
-                                width:${Math.min(
-                                    100,
-                                    Math.max(
-                                        0,
-                                        Number(
-                                            chapa.porcentagem
-                                        ) || 0
-                                    )
-                                )}%;
-                                height:100%;
-                                background:#d4af37;
-                                border-radius:20px;
-                                transition:width .5s;
-                            "
+                            class="resultado-barra-preenchimento"
+                            style="width:${porcentagem}%"
                         ></div>
 
                     </div>
 
-                </div>
 
-            `
-            )
-            .join("");
+                    <div class="resultado-votos">
 
-    }
+                        <span>
+                            ${votos} voto(s)
+                        </span>
 
-    catch (erro) {
+                        <span>
+                            ${porcentagem.toFixed(1)}%
+                        </span>
 
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
+                    </div>
 
-            return;
+                `;
 
-        }
 
+                container.appendChild(
+                    card
+                );
+
+            }
+        );
+
+
+    }catch(erro){
 
         console.error(
-            "Erro ao carregar acompanhamento:",
             erro
         );
 
 
-        lista.innerHTML = `
-
-            <div class="vazio">
-
-                Erro ao conectar com o servidor.
-
-            </div>
-
-        `;
+        container.innerHTML =
+            `<div class="vazio">
+                Erro ao carregar os resultados.
+            </div>`;
 
     }
 
 }
 
-
 /* ==========================================
-   PROTEÇÃO CONTRA HTML INJETADO
+   DASHBOARD
 ========================================== */
 
-function escaparHTML(valor) {
+function atualizarDashboard(){
 
-    return String(
-        valor ?? ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+    const totalTurmas =
+        turmas.length;
 
-}
+    let totalEleitores = 0;
 
-/* ==========================================
-   EXCLUIR TURMA
-========================================== */
+    let totalChapas = 0;
 
-async function excluirTurma() {
-
-    const select =
-        document.getElementById(
-            "selectTurma"
-        );
-
-    const turmaId =
-        select.value;
-
-    const mensagem =
-        document.getElementById(
-            "mensagemExcluirTurma"
-        );
-
-    if (!turmaId) {
-
-        mensagem.textContent =
-            "Selecione uma turma primeiro.";
-
-        return;
-
-    }
+    let totalVotos = 0;
 
 
-    const turma =
-        turmas.find(
-            item => item.id === turmaId
-        );
+    turmas.forEach(turma => {
 
-
-    if (!turma) {
-
-        mensagem.textContent =
-            "Turma não encontrada.";
-
-        return;
-
-    }
-
-
-    const confirmacao =
-        confirm(
-            `ATENÇÃO!\n\n` +
-            `Você está prestes a excluir a turma "${turma.nome}".\n\n` +
-            `Isso também excluirá os eleitores, chapas, eleição e votos dessa turma.\n\n` +
-            `Essa ação não poderá ser desfeita.\n\n` +
-            `Deseja realmente continuar?`
-        );
-
-
-    if (!confirmacao) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const resposta =
-            await requisicaoAdmin(
-                `/api/turmas/${turmaId}`,
-                {
-                    method: "DELETE"
-                }
+        totalEleitores +=
+            Number(
+                turma.totalEleitores || 0
             );
 
+        totalChapas +=
+            Number(
+                turma.totalChapas || 0
+            );
 
-        const dados =
-            await resposta.json();
+        totalVotos +=
+            Number(
+                turma.totalVotos || 0
+            );
 
-
-        mensagem.textContent =
-            dados.mensagem ||
-            "Operação concluída.";
-
-
-        if (
-            dados.sucesso
-        ) {
-
-            turmaSelecionada = null;
-
-            document.getElementById(
-                "selectTurma"
-            ).value = "";
+    });
 
 
-            document.getElementById(
-                "blocoEleitores"
-            ).style.display = "none";
+    document.getElementById(
+        "totalTurmasDashboard"
+    ).textContent =
+        totalTurmas;
 
+    document.getElementById(
+        "totalEleitoresDashboard"
+    ).textContent =
+        totalEleitores;
 
-            document.getElementById(
-                "blocoEleicao"
-            ).style.display = "none";
+    document.getElementById(
+        "totalChapasDashboard"
+    ).textContent =
+        totalChapas;
 
-
-            document.getElementById(
-                "blocoChapas"
-            ).style.display = "none";
-
-
-            document.getElementById(
-                "blocoListaChapas"
-            ).style.display = "none";
-
-
-            document.getElementById(
-                "listaEleitores"
-            ).innerHTML = `
-
-                <div class="vazio">
-
-                    Selecione uma turma para
-                    visualizar os eleitores.
-
-                </div>
-
-            `;
-
-
-            document.getElementById(
-                "listaChapas"
-            ).innerHTML = `
-
-                <div class="vazio">
-
-                    Nenhuma chapa cadastrada
-                    nesta turma.
-
-                </div>
-
-            `;
-
-
-            await carregarTurmas();
-
-            atualizarAcompanhamento();
-
-        }
-
-    }
-
-    catch (erro) {
-
-        if (
-            erro.message ===
-            "UNAUTHORIZED"
-        ) {
-
-            return;
-
-        }
-
-        console.error(
-            "Erro ao excluir turma:",
-            erro
-        );
-
-        mensagem.textContent =
-            "Erro ao conectar com o servidor.";
-
-    }
+    document.getElementById(
+        "totalVotosDashboard"
+    ).textContent =
+        totalVotos;
 
 }
+
+
+/* ==========================================
+   UTILITÁRIO
+========================================== */
+
+function escaparHTML(valor){
+
+    return String(valor ?? "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
 /* ==========================================
    INICIALIZAÇÃO
 ========================================== */
@@ -4053,7 +3528,5 @@ verificarSessao();
 
 </script>
 
-
 </body>
-
 </html>

@@ -1,7 +1,9 @@
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
 const session = require("express-session");
 const Database = require("better-sqlite3");
+const multer = require("multer");
 require("dotenv").config();
 
 const app = express();
@@ -30,31 +32,168 @@ if (!ADMIN_SENHA) {
     console.error("");
 
     process.exit(1);
+}
+
+
+// ==========================================
+// UPLOAD DE FOTOS DAS CHAPAS
+// ==========================================
+
+const pastaFotosChapas =
+    path.join(
+        __dirname,
+        "..",
+        "public",
+        "uploads",
+        "chapas"
+    );
+
+
+if (!fs.existsSync(pastaFotosChapas)) {
+
+    fs.mkdirSync(
+        pastaFotosChapas,
+        {
+            recursive: true
+        }
+    );
 
 }
+
+
+const armazenamentoFotos =
+    multer.diskStorage({
+
+        destination: function (
+            req,
+            arquivo,
+            callback
+        ) {
+
+            callback(
+                null,
+                pastaFotosChapas
+            );
+
+        },
+
+        filename: function (
+            req,
+            arquivo,
+            callback
+        ) {
+
+            const extensao =
+                path.extname(
+                    arquivo.originalname
+                ).toLowerCase();
+
+            const nomeArquivo =
+                `chapa-${Date.now()}-${Math.round(Math.random() * 100000)}${extensao}`;
+
+            callback(
+                null,
+                nomeArquivo
+            );
+
+        }
+
+    });
+
+
+const uploadFotoChapa =
+    multer({
+
+        storage:
+            armazenamentoFotos,
+
+        limits: {
+
+            fileSize:
+                5 * 1024 * 1024
+
+        },
+
+        fileFilter:
+            function (
+                req,
+                arquivo,
+                callback
+            ) {
+
+                const tiposPermitidos = [
+
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp",
+                    "image/gif"
+
+                ];
+
+
+                if (
+                    tiposPermitidos.includes(
+                        arquivo.mimetype
+                    )
+                ) {
+
+                    callback(
+                        null,
+                        true
+                    );
+
+                } else {
+
+                    callback(
+                        new Error(
+                            "TIPO_IMAGEM_INVALIDO"
+                        )
+                    );
+
+                }
+
+            }
+
+    });
 
 
 // ==========================================
 // MIDDLEWARES
 // ==========================================
 
-app.use(express.json());
+app.use(
+    express.json()
+);
+
 
 app.use(
     session({
-        secret: SESSION_SECRET,
 
-        resave: false,
+        secret:
+            SESSION_SECRET,
 
-        saveUninitialized: false,
+        resave:
+            false,
+
+        saveUninitialized:
+            false,
 
         cookie: {
-            httpOnly: true,
-            sameSite: "lax",
-            secure: false,
+
+            httpOnly:
+                true,
+
+            sameSite:
+                "lax",
+
+            secure:
+                false,
+
             maxAge:
                 1000 * 60 * 60 * 4
+
         }
+
     })
 );
 
@@ -65,7 +204,11 @@ app.use(
 
 app.use(
     express.static(
-        path.join(__dirname, "..", "public")
+        path.join(
+            __dirname,
+            "..",
+            "public"
+        )
     )
 );
 
@@ -80,11 +223,40 @@ const pastaDados =
         "dados"
     );
 
+
 const arquivoBanco =
     path.join(
         pastaDados,
         "eleicoes.db"
     );
+
+
+if (!fs.existsSync(pastaDados)) {
+
+    fs.mkdirSync(
+        pastaDados,
+        {
+            recursive: true
+        }
+    );
+
+}
+
+
+if (!fs.existsSync(arquivoBanco)) {
+
+    console.error("");
+    console.error(
+        "ERRO: banco eleicoes.db não encontrado."
+    );
+    console.error(
+        `Local esperado: ${arquivoBanco}`
+    );
+    console.error("");
+
+    process.exit(1);
+
+}
 
 
 const db =
@@ -96,6 +268,49 @@ const db =
 db.pragma(
     "foreign_keys = ON"
 );
+
+
+// ==========================================
+// GARANTIR COLUNA FOTO NAS CHAPAS
+// ==========================================
+
+try {
+
+    const colunasChapas =
+        db.prepare(
+            "PRAGMA table_info(chapas)"
+        ).all();
+
+
+    const possuiColunaFoto =
+        colunasChapas.some(
+            coluna =>
+                coluna.name === "foto"
+        );
+
+
+    if (!possuiColunaFoto) {
+
+        db.prepare(
+            "ALTER TABLE chapas ADD COLUMN foto TEXT"
+        ).run();
+
+        console.log(
+            "Coluna 'foto' adicionada à tabela chapas."
+        );
+
+    }
+
+} catch (erro) {
+
+    console.error(
+        "Erro ao verificar a coluna foto:",
+        erro
+    );
+
+    process.exit(1);
+
+}
 
 
 // ==========================================
@@ -252,6 +467,7 @@ function obterChapas(
             representante,
             vice,
             descricao,
+            foto,
             votos
         FROM chapas
         WHERE turma_id = ?
@@ -414,7 +630,8 @@ function exigirAdmin(
 
     return res.status(401).json({
 
-        sucesso: false,
+        sucesso:
+            false,
 
         mensagem:
             "Acesso administrativo não autorizado."
@@ -427,8 +644,6 @@ function exigirAdmin(
 // ==========================================
 // LOGIN
 // ==========================================
-
-// VERIFICAR SESSÃO
 
 app.get(
     "/api/admin/sessao",
@@ -446,8 +661,6 @@ app.get(
 );
 
 
-// ENTRAR
-
 app.post(
     "/api/admin/login",
     (req, res) => {
@@ -462,7 +675,8 @@ app.post(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe a senha."
@@ -478,7 +692,8 @@ app.post(
 
             return res.status(401).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Senha incorreta."
@@ -488,12 +703,14 @@ app.post(
         }
 
 
-        req.session.admin = true;
+        req.session.admin =
+            true;
 
 
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             mensagem:
                 "Login realizado com sucesso."
@@ -503,8 +720,6 @@ app.post(
     }
 );
 
-
-// SAIR
 
 app.post(
     "/api/admin/logout",
@@ -523,7 +738,8 @@ app.post(
 
                     return res.status(500).json({
 
-                        sucesso: false,
+                        sucesso:
+                            false,
 
                         mensagem:
                             "Não foi possível sair."
@@ -535,7 +751,8 @@ app.post(
 
                 res.json({
 
-                    sucesso: true,
+                    sucesso:
+                        true,
 
                     mensagem:
                         "Sessão encerrada."
@@ -569,7 +786,8 @@ app.get(
 
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             turmas:
                 turmas
@@ -595,7 +813,8 @@ app.get(
 
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             turmas:
                 turmas
@@ -621,11 +840,18 @@ app.post(
             ).trim();
 
 
+        const letra =
+            String(
+                req.body.letra || ""
+            ).trim();
+
+
         if (!nome) {
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe o nome da turma."
@@ -635,6 +861,12 @@ app.post(
         }
 
 
+        const nomeCompleto =
+            letra
+                ? `${nome}`
+                : nome;
+
+
         const existente =
             db.prepare(`
                 SELECT
@@ -642,7 +874,7 @@ app.post(
                 FROM turmas
                 WHERE LOWER(nome) = LOWER(?)
             `).get(
-                nome
+                nomeCompleto
             );
 
 
@@ -650,7 +882,8 @@ app.post(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Essa turma já está cadastrada."
@@ -677,8 +910,11 @@ app.post(
                         ?
                     )
                 `).run(
+
                     novaTurmaId,
-                    nome
+
+                    nomeCompleto
+
                 );
 
 
@@ -719,7 +955,8 @@ app.post(
 
             return res.status(500).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Não foi possível criar a turma."
@@ -731,7 +968,8 @@ app.post(
 
         res.status(201).json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             mensagem:
                 "Turma criada com sucesso.",
@@ -770,7 +1008,8 @@ app.delete(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
@@ -792,7 +1031,8 @@ app.delete(
 
             res.json({
 
-                sucesso: true,
+                sucesso:
+                    true,
 
                 mensagem:
                     `A turma "${turma.nome}" foi excluída com sucesso.`
@@ -808,7 +1048,8 @@ app.delete(
 
             res.status(500).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Não foi possível excluir a turma."
@@ -825,8 +1066,6 @@ app.delete(
 // ELEITORES
 // ==========================================
 
-// LISTAR ELEITORES
-
 app.get(
     "/api/turmas/:turmaId/eleitores",
     exigirAdmin,
@@ -842,7 +1081,8 @@ app.get(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
@@ -854,7 +1094,8 @@ app.get(
 
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             eleitores:
                 obterEleitores(
@@ -866,8 +1107,6 @@ app.get(
     }
 );
 
-
-// CADASTRAR ELEITOR
 
 app.post(
     "/api/turmas/:turmaId/eleitores",
@@ -893,7 +1132,8 @@ app.post(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe o nome do eleitor."
@@ -907,7 +1147,8 @@ app.post(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe um CPF válido."
@@ -927,7 +1168,8 @@ app.post(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
@@ -952,7 +1194,8 @@ app.post(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Este CPF já está cadastrado."
@@ -1004,7 +1247,8 @@ app.post(
 
             return res.status(500).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Não foi possível cadastrar o eleitor."
@@ -1016,7 +1260,8 @@ app.post(
 
         res.status(201).json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             mensagem:
                 "Eleitor cadastrado com sucesso.",
@@ -1045,9 +1290,14 @@ app.post(
 // ==========================================
 
 // LISTAR CHAPAS
+//
+// ATENÇÃO:
+// Esta rota precisa ser GET.
+// A versão anterior estava como POST.
 
 app.get(
     "/api/turmas/:turmaId/chapas",
+    exigirAdmin,
     (req, res) => {
 
         const turma =
@@ -1060,7 +1310,8 @@ app.get(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
@@ -1072,7 +1323,8 @@ app.get(
 
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             chapas:
                 obterChapas(
@@ -1085,11 +1337,14 @@ app.get(
 );
 
 
-// CADASTRAR CHAPA
+// ==========================================
+// CADASTRAR CHAPA COM FOTO
+// ==========================================
 
 app.post(
     "/api/turmas/:turmaId/chapas",
     exigirAdmin,
+    uploadFotoChapa.single("foto"),
     (req, res) => {
 
         const numero =
@@ -1122,11 +1377,22 @@ app.post(
             ).trim();
 
 
+        const foto =
+            req.file
+                ? `/uploads/chapas/${req.file.filename}`
+                : null;
+
+
         if (!numero) {
+
+            apagarFotoSeNecessario(
+                req.file
+            );
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe o número da chapa."
@@ -1138,9 +1404,14 @@ app.post(
 
         if (!nome) {
 
+            apagarFotoSeNecessario(
+                req.file
+            );
+
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe o nome da chapa."
@@ -1152,9 +1423,14 @@ app.post(
 
         if (!representante) {
 
+            apagarFotoSeNecessario(
+                req.file
+            );
+
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe o representante."
@@ -1166,9 +1442,14 @@ app.post(
 
         if (!vice) {
 
+            apagarFotoSeNecessario(
+                req.file
+            );
+
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe o vice-representante."
@@ -1186,9 +1467,14 @@ app.post(
 
         if (!turma) {
 
+            apagarFotoSeNecessario(
+                req.file
+            );
+
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
@@ -1216,9 +1502,14 @@ app.post(
 
         if (numeroExistente) {
 
+            apagarFotoSeNecessario(
+                req.file
+            );
+
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Já existe uma chapa com este número nesta turma."
@@ -1243,9 +1534,11 @@ app.post(
                     representante,
                     vice,
                     descricao,
+                    foto,
                     votos
                 )
                 VALUES (
+                    ?,
                     ?,
                     ?,
                     ?,
@@ -1269,11 +1562,17 @@ app.post(
 
                 vice,
 
-                descricao
+                descricao,
+
+                foto
 
             );
 
         } catch (erro) {
+
+            apagarFotoSeNecessario(
+                req.file
+            );
 
             console.error(
                 "Erro ao cadastrar chapa:",
@@ -1282,7 +1581,8 @@ app.post(
 
             return res.status(500).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Não foi possível cadastrar a chapa."
@@ -1301,6 +1601,7 @@ app.post(
                     representante,
                     vice,
                     descricao,
+                    foto,
                     votos
                 FROM chapas
                 WHERE id = ?
@@ -1311,7 +1612,8 @@ app.post(
 
         res.status(201).json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             mensagem:
                 "Chapa cadastrada com sucesso.",
@@ -1329,8 +1631,6 @@ app.post(
 // ELEIÇÃO
 // ==========================================
 
-// CONSULTAR ELEIÇÃO
-
 app.get(
     "/api/turmas/:turmaId/eleicao",
     exigirAdmin,
@@ -1346,7 +1646,8 @@ app.get(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
@@ -1396,7 +1697,8 @@ app.get(
 
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             eleicao:
                 eleicao
@@ -1406,8 +1708,6 @@ app.get(
     }
 );
 
-
-// CONFIGURAR ELEIÇÃO
 
 app.put(
     "/api/turmas/:turmaId/eleicao",
@@ -1424,7 +1724,8 @@ app.put(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
@@ -1462,7 +1763,8 @@ app.put(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe o nome da eleição."
@@ -1476,7 +1778,8 @@ app.put(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe a data e hora de início."
@@ -1490,7 +1793,8 @@ app.put(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe a data e hora de encerramento."
@@ -1523,7 +1827,8 @@ app.put(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Data ou hora inválida."
@@ -1534,13 +1839,13 @@ app.put(
 
 
         if (
-            dataFim <=
-            dataInicio
+            dataFim <= dataInicio
         ) {
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "O encerramento deve ser depois do início."
@@ -1570,15 +1875,20 @@ app.put(
             ON CONFLICT(turma_id)
             DO UPDATE SET
 
-                nome = excluded.nome,
+                nome =
+                    excluded.nome,
 
-                descricao = excluded.descricao,
+                descricao =
+                    excluded.descricao,
 
-                inicio = excluded.inicio,
+                inicio =
+                    excluded.inicio,
 
-                fim = excluded.fim,
+                fim =
+                    excluded.fim,
 
-                ativa = excluded.ativa
+                ativa =
+                    excluded.ativa
         `).run(
 
             req.params.turmaId,
@@ -1591,14 +1901,17 @@ app.put(
 
             fim,
 
-            ativa ? 1 : 0
+            ativa
+                ? 1
+                : 0
 
         );
 
 
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             mensagem:
                 ativa
@@ -1639,7 +1952,8 @@ app.post(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Informe um CPF válido."
@@ -1659,7 +1973,8 @@ app.post(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
@@ -1691,7 +2006,8 @@ app.post(
 
             return res.status(401).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Eleitor não encontrado nesta turma."
@@ -1709,7 +2025,8 @@ app.post(
 
             return res.status(403).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Este eleitor já registrou seu voto."
@@ -1721,7 +2038,8 @@ app.post(
 
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             eleitor: {
 
@@ -1773,7 +2091,8 @@ app.post(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Eleitor não informado."
@@ -1787,7 +2106,8 @@ app.post(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Chapa não informada."
@@ -1807,7 +2127,8 @@ app.post(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
@@ -1827,7 +2148,8 @@ app.post(
 
             return res.status(400).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Esta turma não possui uma eleição configurada."
@@ -1841,7 +2163,8 @@ app.post(
 
             return res.status(403).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "A eleição desta turma não está ativa."
@@ -1878,7 +2201,8 @@ app.post(
 
             return res.status(403).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "O período da eleição não está configurado corretamente."
@@ -1895,7 +2219,8 @@ app.post(
 
             return res.status(403).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "A eleição não está dentro do período de votação."
@@ -1927,7 +2252,8 @@ app.post(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Eleitor não encontrado."
@@ -1945,7 +2271,8 @@ app.post(
 
             return res.status(403).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Este eleitor já votou."
@@ -1964,6 +2291,7 @@ app.post(
                     representante,
                     vice,
                     descricao,
+                    foto,
                     votos
                 FROM chapas
                 WHERE id = ?
@@ -1981,7 +2309,8 @@ app.post(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Chapa não encontrada."
@@ -1995,9 +2324,6 @@ app.post(
 
             const registrarVoto =
                 db.transaction(() => {
-
-                    // Verificação novamente
-                    // dentro da transação.
 
                     const eleitorAtual =
                         db.prepare(`
@@ -2015,9 +2341,7 @@ app.post(
                         );
 
 
-                    if (
-                        !eleitorAtual
-                    ) {
+                    if (!eleitorAtual) {
 
                         throw new Error(
                             "ELEITOR_NAO_ENCONTRADO"
@@ -2040,7 +2364,8 @@ app.post(
 
 
                     const agoraVoto =
-                        new Date().toISOString();
+                        new Date()
+                            .toISOString();
 
 
                     db.prepare(`
@@ -2112,7 +2437,8 @@ app.post(
 
                 return res.status(403).json({
 
-                    sucesso: false,
+                    sucesso:
+                        false,
 
                     mensagem:
                         "Este eleitor já votou."
@@ -2129,7 +2455,8 @@ app.post(
 
                 return res.status(404).json({
 
-                    sucesso: false,
+                    sucesso:
+                        false,
 
                     mensagem:
                         "Eleitor não encontrado."
@@ -2146,7 +2473,8 @@ app.post(
 
                 return res.status(403).json({
 
-                    sucesso: false,
+                    sucesso:
+                        false,
 
                     mensagem:
                         "Este eleitor já registrou um voto."
@@ -2163,7 +2491,8 @@ app.post(
 
             return res.status(500).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Não foi possível registrar o voto."
@@ -2175,7 +2504,8 @@ app.post(
 
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
 
             mensagem:
                 "Voto registrado com sucesso."
@@ -2185,7 +2515,184 @@ app.post(
     }
 );
 
+// ==========================================
+// RESULTADOS ADMINISTRATIVOS
+// ==========================================
 
+// O administrador pode visualizar a apuração
+// mesmo enquanto a eleição estiver ativa.
+
+app.get(
+    "/api/admin/turmas/:turmaId/resultados",
+    exigirAdmin,
+    (req, res) => {
+
+        const turmaId =
+            req.params.turmaId;
+
+
+        const turma =
+            obterTurma(
+                turmaId
+            );
+
+
+        if (!turma) {
+
+            return res.status(404).json({
+
+                sucesso:
+                    false,
+
+                mensagem:
+                    "Turma não encontrada."
+
+            });
+
+        }
+
+
+        const eleicao =
+            obterEleicao(
+                turmaId
+            );
+
+
+        const chapas =
+            obterChapas(
+                turmaId
+            );
+
+
+        const totalEleitores =
+            db.prepare(`
+                SELECT
+                    COUNT(*) AS total
+                FROM eleitores
+                WHERE turma_id = ?
+            `).get(
+                turmaId
+            ).total;
+
+
+        const totalVotos =
+            db.prepare(`
+                SELECT
+                    COUNT(*) AS total
+                FROM votos
+                WHERE turma_id = ?
+            `).get(
+                turmaId
+            ).total;
+
+
+        const resultados =
+            chapas.map(
+                chapa => {
+
+                    const votos =
+                        Number(
+                            chapa.votos
+                        ) || 0;
+
+
+                    const porcentagem =
+                        totalVotos > 0
+
+                            ? (
+                                votos /
+                                totalVotos
+                            ) * 100
+
+                            : 0;
+
+
+                    return {
+
+                        id:
+                            chapa.id,
+
+                        numero:
+                            chapa.numero,
+
+                        nome:
+                            chapa.nome,
+
+                        representante:
+                            chapa.representante,
+
+                        vice:
+                            chapa.vice,
+
+                        descricao:
+                            chapa.descricao,
+
+                        foto:
+                            chapa.foto,
+
+                        votos:
+                            votos,
+
+                        porcentagem:
+                            Number(
+                                porcentagem.toFixed(2)
+                            )
+
+                    };
+
+                }
+            );
+
+
+        res.json({
+
+            sucesso:
+                true,
+
+            resultadosDisponiveis:
+                true,
+
+            encerrada:
+                eleicao
+                    ? (
+                        eleicao.fim &&
+                        new Date() >
+                        new Date(
+                            eleicao.fim
+                        )
+                    )
+                    : false,
+
+            turma: {
+
+                id:
+                    turma.id,
+
+                nome:
+                    turma.nome
+
+            },
+
+            eleicao:
+                eleicao,
+
+            totalEleitores:
+                Number(
+                    totalEleitores
+                ) || 0,
+
+            totalVotos:
+                Number(
+                    totalVotos
+                ) || 0,
+
+            resultados:
+                resultados
+
+        });
+
+    }
+);
 // ==========================================
 // RESULTADOS PÚBLICOS
 // ==========================================
@@ -2204,10 +2711,88 @@ app.get(
 
             return res.status(404).json({
 
-                sucesso: false,
+                sucesso:
+                    false,
 
                 mensagem:
                     "Turma não encontrada."
+
+            });
+
+        }
+
+
+        const eleicao =
+            obterEleicao(
+                req.params.turmaId
+            );
+
+
+        if (!eleicao) {
+
+            return res.status(403).json({
+
+                sucesso:
+                    false,
+
+                resultadosDisponiveis:
+                    false,
+
+                mensagem:
+                    "A eleição desta turma ainda não foi configurada."
+
+            });
+
+        }
+
+
+        const agora =
+            new Date();
+
+
+        const fim =
+            new Date(
+                eleicao.fim
+            );
+
+
+        if (
+            !eleicao.fim ||
+            Number.isNaN(
+                fim.getTime()
+            )
+        ) {
+
+            return res.status(403).json({
+
+                sucesso:
+                    false,
+
+                resultadosDisponiveis:
+                    false,
+
+                mensagem:
+                    "A apuração ainda não está disponível."
+
+            });
+
+        }
+
+
+        if (
+            agora <= fim
+        ) {
+
+            return res.status(403).json({
+
+                sucesso:
+                    false,
+
+                resultadosDisponiveis:
+                    false,
+
+                mensagem:
+                    "Os resultados serão disponibilizados após o encerramento da eleição."
 
             });
 
@@ -2254,10 +2839,12 @@ app.get(
 
                     const porcentagem =
                         totalVotos > 0
+
                             ? (
                                 votos /
                                 totalVotos
                             ) * 100
+
                             : 0;
 
 
@@ -2281,6 +2868,9 @@ app.get(
                         descricao:
                             chapa.descricao,
 
+                        foto:
+                            chapa.foto,
+
                         votos:
                             votos,
 
@@ -2295,9 +2885,29 @@ app.get(
             );
 
 
+        const resultadosOrdenados =
+            [...resultados].sort(
+                (a, b) =>
+                    b.votos - a.votos
+            );
+
+
+        const chapaEleita =
+            resultadosOrdenados.length > 0
+                ? resultadosOrdenados[0]
+                : null;
+
+
         res.json({
 
-            sucesso: true,
+            sucesso:
+                true,
+
+            resultadosDisponiveis:
+                true,
+
+            encerrada:
+                true,
 
             turma: {
 
@@ -2310,15 +2920,16 @@ app.get(
             },
 
             eleicao:
-                obterEleicao(
-                    req.params.turmaId
-                ),
+                eleicao,
 
             totalEleitores:
                 totalEleitores,
 
             totalVotos:
                 totalVotos,
+
+            chapaEleita:
+                chapaEleita,
 
             resultados:
                 resultados
@@ -2327,6 +2938,115 @@ app.get(
 
     }
 );
+
+
+// ==========================================
+// ERROS DO MULTER / UPLOAD
+// ==========================================
+
+app.use(
+    (erro, req, res, next) => {
+
+        if (
+            erro &&
+            erro.message ===
+            "TIPO_IMAGEM_INVALIDO"
+        ) {
+
+            return res.status(400).json({
+
+                sucesso:
+                    false,
+
+                mensagem:
+                    "Selecione uma imagem JPG, PNG, WEBP ou GIF."
+
+            });
+
+        }
+
+
+        if (
+            erro instanceof multer.MulterError &&
+            erro.code ===
+            "LIMIT_FILE_SIZE"
+        ) {
+
+            return res.status(400).json({
+
+                sucesso:
+                    false,
+
+                mensagem:
+                    "A imagem deve ter no máximo 5 MB."
+
+            });
+
+        }
+
+
+        console.error(
+            "Erro no servidor:",
+            erro
+        );
+
+
+        res.status(500).json({
+
+            sucesso:
+                false,
+
+            mensagem:
+                "Erro interno do servidor."
+
+        });
+
+    }
+);
+
+
+// ==========================================
+// FUNÇÃO PARA APAGAR FOTO EM CASO DE ERRO
+// ==========================================
+
+function apagarFotoSeNecessario(
+    arquivo
+) {
+
+    if (
+        !arquivo ||
+        !arquivo.path
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        if (
+            fs.existsSync(
+                arquivo.path
+            )
+        ) {
+
+            fs.unlinkSync(
+                arquivo.path
+            );
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            "Não foi possível apagar a foto:",
+            erro
+        );
+
+    }
+
+}
 
 
 // ==========================================
@@ -2388,6 +3108,10 @@ app.listen(
 
         console.log(
             "Banco de dados: SQLite"
+        );
+
+        console.log(
+            "Upload de fotos: Ativo"
         );
 
         console.log(

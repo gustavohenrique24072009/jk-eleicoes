@@ -1,940 +1,1812 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <title>JK Eleições | Resultados</title>
+    <title>Resultados | Eleições JK</title>
 
     <style>
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            background:
-                radial-gradient(
-                    circle at top,
-                    #292929 0%,
-                    #111 45%,
-                    #050505 100%
-                );
-            color: white;
             min-height: 100vh;
+            color: #fff;
+            background:
+                radial-gradient(circle at 20% 10%, rgba(0, 110, 255, .20), transparent 30%),
+                radial-gradient(circle at 80% 80%, rgba(0, 70, 255, .14), transparent 35%),
+                #050914;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        .top-line {
+            height: 3px;
+            width: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                #168cff,
+                #65c7ff,
+                #168cff,
+                transparent
+            );
+            animation: linha 3s linear infinite;
+        }
+
+        @keyframes linha {
+            0% {
+                opacity: .35;
+                transform: translateX(-10%);
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: .35;
+                transform: translateX(10%);
+            }
         }
 
         header {
-            height: 80px;
-            background: #080808;
-            border-bottom: 1px solid #d4af37;
+            width: min(1180px, 92%);
+            margin: 0 auto;
+            padding: 28px 0;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 35px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,.08);
         }
 
         .logo {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 13px;
         }
 
-        .logo strong {
-            color: #d4af37;
-            font-size: 25px;
-            letter-spacing: 3px;
+        .logo-mark {
+            width: 43px;
+            height: 43px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+            background: linear-gradient(135deg, #087bff, #0051c9);
+            box-shadow: 0 0 25px rgba(0, 125, 255, .35);
         }
 
-        .logo span {
-            color: #aaa;
-            font-size: 12px;
+        .logo-text strong {
+            display: block;
+            font-size: 19px;
             letter-spacing: 2px;
-            margin-top: 3px;
         }
 
-        .voltar {
-            color: #d4af37;
-            text-decoration: none;
-            font-weight: bold;
+        .logo-text span {
+            color: #7890ad;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #8da2bd;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #28a9ff;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #168cff;
+            animation: pulsar 1.7s infinite;
+        }
+
+        @keyframes pulsar {
+            50% {
+                opacity: .35;
+                transform: scale(.7);
+            }
         }
 
         main {
-            width: 100%;
-            max-width: 1100px;
-            margin: 45px auto;
-            padding: 0 20px;
+            width: min(1180px, 92%);
+            margin: 0 auto;
+            padding: 65px 0 90px;
         }
 
-        .painel {
-            background: #101010;
-            border: 1px solid #333;
-            border-radius: 18px;
-            overflow: hidden;
-            box-shadow:
-                0 20px 60px rgba(0,0,0,.6),
-                0 0 25px rgba(212,175,55,.08);
-        }
-
-        .topo {
-            padding: 35px;
+        .hero {
             text-align: center;
-            border-bottom: 1px solid #333;
+            margin-bottom: 45px;
+            animation: aparecer .7s ease;
         }
 
-        .topo h1 {
-            color: #d4af37;
-            font-size: 32px;
-            letter-spacing: 2px;
-            margin-bottom: 8px;
+        @keyframes aparecer {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .topo p {
-            color: #999;
-        }
-
-        .conteudo {
-            padding: 35px;
-        }
-
-        .titulo-secao {
-            color: #d4af37;
-            font-size: 13px;
+        .hero-label {
+            color: #168cff;
+            font-size: 12px;
             font-weight: bold;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
+            letter-spacing: 4px;
+            margin-bottom: 15px;
         }
 
-        h2 {
-            font-size: 26px;
-            margin-bottom: 25px;
+        .hero h1 {
+            font-size: clamp(35px, 6vw, 65px);
+            letter-spacing: -2px;
+            margin-bottom: 15px;
         }
 
-        .turmas {
+        .hero p {
+            max-width: 650px;
+            margin: auto;
+            color: #8da2bd;
+            line-height: 1.7;
+        }
+
+        /* BLOQUEIO */
+
+        #bloqueio {
+            display: none;
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 45px 30px;
+            text-align: center;
+            border: 1px solid rgba(0, 130, 255, .25);
+            border-radius: 24px;
+            background: rgba(10, 21, 39, .75);
+            box-shadow: 0 25px 70px rgba(0,0,0,.25);
+            animation: aparecer .6s ease;
+        }
+
+        .bloqueio-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            background: rgba(0, 120, 255, .12);
+            border: 1px solid rgba(0, 150, 255, .3);
+        }
+
+        #bloqueio h2 {
+            margin-bottom: 12px;
+        }
+
+        #bloqueio p {
+            color: #8da2bd;
+            line-height: 1.6;
+        }
+
+        /* RESULTADOS */
+
+        #conteudoResultados {
+            display: none;
+        }
+
+        .section-title {
+            margin: 50px 0 22px;
+        }
+
+        .section-title span {
+            color: #168cff;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        .section-title h2 {
+            margin-top: 8px;
+            font-size: 30px;
+        }
+
+        #listaTurmas {
             display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(210px, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .eleito-card {
+            position: relative;
+            overflow: hidden;
+            padding: 28px;
+            border-radius: 24px;
+            background: linear-gradient(
+                145deg,
+                rgba(17, 31, 53, .92),
+                rgba(7, 14, 27, .92)
+            );
+            border: 1px solid rgba(255,255,255,.08);
+            box-shadow: 0 20px 60px rgba(0,0,0,.25);
+            transition: .35s;
+            animation: cardEntrada .7s ease both;
+        }
+
+        .eleito-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0, 135, 255, .5);
+            box-shadow:
+                0 25px 70px rgba(0,0,0,.35),
+                0 0 30px rgba(0, 115, 255, .10);
+        }
+
+        .eleito-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #006eff, #65c7ff);
+        }
+
+        @keyframes cardEntrada {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .turma-topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             gap: 15px;
+            margin-bottom: 25px;
         }
 
         .turma {
-            background: #171717;
-            color: white;
-            border: 1px solid #444;
-            border-radius: 12px;
-            padding: 20px;
-            cursor: pointer;
-            text-align: left;
-            transition: .2s;
+            font-size: 15px;
+            color: #a9bad0;
+            font-weight: bold;
         }
 
-        .turma:hover {
-            border-color: #d4af37;
-            transform: translateY(-3px);
+        .eleito-tag {
+            padding: 7px 11px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            color: #58bcff;
+            background: rgba(0, 132, 255, .1);
+            border: 1px solid rgba(0, 145, 255, .25);
         }
 
-        .turma strong {
-            display: block;
-            color: #d4af37;
-            font-size: 18px;
-            margin-bottom: 7px;
-        }
-
-        .turma span {
-            color: #888;
-            font-size: 13px;
-        }
-
-        .resultado {
-            display: none;
-            margin-top: 35px;
-        }
-
-        .cabecalho-resultado {
-            background: #151515;
-            border: 1px solid #333;
-            border-left: 4px solid #d4af37;
-            border-radius: 10px;
-            padding: 22px;
-            margin-bottom: 25px;
-        }
-
-        .cabecalho-resultado h3 {
-            color: #d4af37;
-            font-size: 24px;
+        .representante-label {
+            color: #168cff;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 2px;
             margin-bottom: 8px;
         }
 
-        .cabecalho-resultado p {
-            color: #aaa;
-            line-height: 1.5;
+        .nome-representante {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
         }
 
+        .vice {
+            color: #8195ae;
+            margin-bottom: 23px;
+        }
+
+        .chapa-info {
+            padding: 17px;
+            border-radius: 15px;
+            background: rgba(255,255,255,.035);
+            border: 1px solid rgba(255,255,255,.06);
+            margin-bottom: 22px;
+        }
+
+        .chapa-label {
+            color: #7287a1;
+            font-size: 9px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .chapa-nome {
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .chapa-numero {
+            color: #168cff;
+        }
+
+        /* DESEMPENHO */
+
+        .desempenho {
+            margin-top: 10px;
+        }
+
+        .desempenho-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            margin-bottom: 10px;
+        }
+
+        .desempenho-header span:first-child {
+            color: #8da2bd;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .porcentagem {
+            font-size: 25px;
+            font-weight: 900;
+            color: #4eb5ff;
+        }
+
+        .grafico {
+            width: 100%;
+            height: 14px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(255,255,255,.07);
+        }
+
+        .barra {
+            height: 100%;
+            width: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #006eff, #52baff);
+            box-shadow: 0 0 18px rgba(0, 130, 255, .35);
+            transition: width 1.4s cubic-bezier(.2,.8,.2,1);
+        }
+
+        .votos {
+            margin-top: 10px;
+            color: #8195ae;
+            font-size: 12px;
+        }
+
+        .votos strong {
+            color: #fff;
+        }
+
+        /* BOTÃO STORY */
+
+        .btn-story {
+            width: 100%;
+            margin-top: 25px;
+            border: 1px solid rgba(0, 145, 255, .35);
+            background: linear-gradient(
+                135deg,
+                rgba(0, 106, 255, .16),
+                rgba(0, 72, 160, .12)
+            );
+            color: #fff;
+            padding: 14px;
+            border-radius: 13px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            transition: .3s;
+        }
+
+        .btn-story:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(
+                135deg,
+                rgba(0, 125, 255, .30),
+                rgba(0, 72, 160, .20)
+            );
+            border-color: #168cff;
+            box-shadow: 0 10px 30px rgba(0, 110, 255, .18);
+        }
+
+        /* RESUMO */
+
         .resumo {
+            margin-top: 45px;
             display: grid;
-            grid-template-columns:
-                repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
-            margin-bottom: 25px;
         }
 
         .resumo-card {
-            background: #151515;
-            border: 1px solid #333;
-            border-radius: 12px;
             padding: 22px;
+            border-radius: 18px;
+            background: rgba(12, 24, 42, .7);
+            border: 1px solid rgba(255,255,255,.07);
             text-align: center;
         }
 
         .resumo-card span {
             display: block;
-            color: #888;
-            font-size: 12px;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            color: #7287a1;
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
         }
 
         .resumo-card strong {
-            color: #d4af37;
-            font-size: 30px;
+            font-size: 25px;
         }
 
-        .chapas {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .chapa {
-            background: #151515;
-            border: 1px solid #333;
-            border-radius: 14px;
-            padding: 25px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chapa:hover {
-            border-color: #d4af37;
-        }
-
-        .chapa-topo {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .numero {
-            color: #d4af37;
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin-bottom: 7px;
-        }
-
-        .nome {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .votos {
-            text-align: right;
-            min-width: 100px;
-        }
-
-        .votos strong {
+        .btn-voltar {
             display: block;
-            color: #d4af37;
-            font-size: 30px;
+            width: fit-content;
+            margin: 40px auto 0;
+            padding: 13px 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,.1);
+            background: rgba(255,255,255,.035);
+            color: #b7c5d6;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: .3s;
         }
 
-        .votos span {
-            color: #888;
-            font-size: 12px;
+        .btn-voltar:hover {
+            color: #fff;
+            border-color: #168cff;
         }
 
-        .pessoas {
-            color: #aaa;
-            font-size: 14px;
-            line-height: 1.6;
+        /* MODAL STORY */
+
+        #modalStory {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            inset: 0;
+            background: rgba(0,0,0,.82);
+            backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .story-modal {
+            width: min(430px, 100%);
+            max-height: 95vh;
+            overflow: auto;
+            padding: 20px;
+            border-radius: 25px;
+            background: #08111f;
+            border: 1px solid rgba(0, 140, 255, .35);
+            box-shadow: 0 30px 100px rgba(0,0,0,.6);
+            animation: storyEntrada .35s ease;
+        }
+
+        @keyframes storyEntrada {
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .story-modal h3 {
             margin-bottom: 15px;
         }
 
-        .barra {
+        #storyCanvas {
             width: 100%;
-            height: 10px;
-            background: #292929;
-            border-radius: 20px;
-            overflow: hidden;
+            height: auto;
+            display: block;
+            border-radius: 15px;
+            background: #050914;
         }
 
-        .barra-preenchimento {
-            height: 100%;
-            width: 0%;
-            background: #d4af37;
-            border-radius: 20px;
-            transition: width .7s ease;
+        .story-botoes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
         }
 
-        .porcentagem {
-            color: #d4af37;
-            font-size: 13px;
-            font-weight: bold;
-            margin-top: 8px;
-            text-align: right;
-        }
-
-        .mensagem {
-            background: #151515;
-            border: 1px dashed #444;
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            color: #888;
-        }
-
-        .erro {
-            color: #ff9999;
-            border-color: #773838;
-        }
-
-        .botoes {
-            margin-top: 25px;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            font-family: inherit;
-        }
-
-        .btn {
-            background: transparent;
-            color: #d4af37;
-            border: 1px solid #d4af37;
-            border-radius: 10px;
-            padding: 13px 22px;
+        .story-botoes button {
+            border: 0;
+            border-radius: 11px;
+            padding: 13px;
             cursor: pointer;
             font-weight: bold;
         }
 
-        .btn:hover {
-            background: #d4af37;
-            color: #080808;
+        #baixarStory {
+            background: #087bff;
+            color: #fff;
         }
 
-        @media (max-width: 700px) {
+        #fecharStory {
+            background: rgba(255,255,255,.08);
+            color: #fff;
+        }
 
-            header {
-                padding: 0 18px;
-            }
-
-            .logo strong {
-                font-size: 20px;
-            }
-
-            main {
-                margin: 20px auto;
-                padding: 0 10px;
-            }
-
-            .conteudo {
-                padding: 25px 20px;
+        @media (max-width: 800px) {
+            #listaTurmas {
+                grid-template-columns: 1fr;
             }
 
             .resumo {
                 grid-template-columns: 1fr;
             }
 
-            .chapa-topo {
-                flex-direction: column;
+            header {
+                padding: 20px 0;
             }
 
-            .votos {
-                text-align: left;
+            .status {
+                display: none;
             }
 
+            main {
+                padding-top: 45px;
+            }
         }
-
     </style>
-
 </head>
-
 
 <body>
 
-<header>
+    <div class="top-line"></div>
 
-    <div class="logo">
+    <header>
+        <div class="logo">
+            <div class="logo-mark">JK</div>
 
-        <strong>JK ELEIÇÕES</strong>
+            <div class="logo-text">
+                <strong>ELEIÇÕES JK</strong>
+                <span>REPRESENTANTES DE TURMA</span>
+            </div>
+        </div>
 
-        <span>
-            E.E. JOHN KENNEDY
-        </span>
+        <div class="status">
+            <div class="status-dot"></div>
+            APURAÇÃO OFICIAL
+        </div>
+    </header>
 
-    </div>
+    <main>
 
-    <a
-        href="index.html"
-        class="voltar"
-    >
-        ← Voltar
-    </a>
+        <section class="hero">
+            <div class="hero-label">RESULTADO OFICIAL</div>
 
-</header>
-
-
-<main>
-
-    <div class="painel">
-
-        <div class="topo">
-
-            <h1>
-                RESULTADOS
-            </h1>
+            <h1>Representantes Eleitos</h1>
 
             <p>
-                Acompanhe os resultados das eleições
-                de representantes de turma.
+                Confira os representantes eleitos, suas chapas,
+                votação e desempenho em cada turma.
+            </p>
+        </section>
+
+        <!-- BLOQUEIO -->
+        <section id="bloqueio">
+
+            <div class="bloqueio-icon">🔒</div>
+
+            <h2>Apuração ainda não disponível</h2>
+
+            <p>
+                Os resultados oficiais serão disponibilizados
+                somente após o encerramento da eleição.
             </p>
 
-        </div>
+        </section>
 
+        <!-- RESULTADOS -->
+        <section id="conteudoResultados">
 
-        <div class="conteudo">
-
-            <div class="titulo-secao">
-                ETAPA 01
+            <div class="section-title">
+                <span>APURAÇÃO</span>
+                <h2>Representantes eleitos</h2>
             </div>
 
-            <h2>
-                Selecione uma turma
-            </h2>
+            <div id="listaTurmas"></div>
 
+            <div class="section-title">
+                <span>RESUMO</span>
+                <h2>Dados da eleição</h2>
+            </div>
 
-            <div
-                id="listaTurmas"
-                class="turmas"
-            >
+            <div class="resumo">
 
-                <div class="mensagem">
-                    Carregando turmas...
+                <div class="resumo-card">
+                    <span>TURMAS APURADAS</span>
+                    <strong id="totalTurmas">0</strong>
+                </div>
+
+                <div class="resumo-card">
+                    <span>ELEITORES CADASTRADOS</span>
+                    <strong id="totalEleitores">0</strong>
+                </div>
+
+                <div class="resumo-card">
+                    <span>VOTOS REGISTRADOS</span>
+                    <strong id="totalVotos">0</strong>
                 </div>
 
             </div>
 
+            <a href="index.html" class="btn-voltar">
+                ← VOLTAR PARA O INÍCIO
+            </a>
 
-            <div
-                id="resultado"
-                class="resultado"
-            >
+        </section>
 
-                <div
-                    id="cabecalhoResultado"
-                    class="cabecalho-resultado"
-                ></div>
+    </main>
 
+    <!-- MODAL STORY -->
 
-                <div
-                    id="resumo"
-                    class="resumo"
-                ></div>
+    <div id="modalStory">
 
+        <div class="story-modal">
 
-                <div
-                    id="listaChapas"
-                    class="chapas"
-                ></div>
+            <h3>Prévia do Story</h3>
 
+            <canvas id="storyCanvas" width="1080" height="1920"></canvas>
 
-                <div class="botoes">
+            <div class="story-botoes">
 
-                    <button
-                        class="btn"
-                        onclick="voltarTurmas()"
-                    >
-                        ← ESCOLHER OUTRA TURMA
-                    </button>
+                <button id="baixarStory">
+                    BAIXAR STORY
+                </button>
 
-                </div>
+                <button id="fecharStory">
+                    FECHAR
+                </button>
 
             </div>
 
         </div>
 
     </div>
-
-</main>
-
 
 <script>
 
-    const listaTurmas =
-        document.getElementById(
-            "listaTurmas"
-        );
+    let dadosStoryAtual = null;
 
-    const resultado =
-        document.getElementById(
-            "resultado"
-        );
+    async function carregarResultados() {
 
-    const cabecalhoResultado =
-        document.getElementById(
-            "cabecalhoResultado"
-        );
+        const bloqueio = document.getElementById("bloqueio");
+        const conteudo = document.getElementById("conteudoResultados");
+        const lista = document.getElementById("listaTurmas");
 
-    const resumo =
-        document.getElementById(
-            "resumo"
-        );
+        try {
 
-    const listaChapas =
-        document.getElementById(
-            "listaChapas"
-        );
+            const respostaTurmas = await fetch("/api/turmas");
+
+            if (!respostaTurmas.ok) {
+                throw new Error("Não foi possível carregar as turmas.");
+            }
+
+            const dadosTurmas = await respostaTurmas.json();
+
+            const turmas = dadosTurmas.turmas || [];
+
+            if (!turmas.length) {
+
+                bloqueio.style.display = "block";
+
+                bloqueio.querySelector("h2").textContent =
+                    "Nenhuma turma encontrada.";
+
+                return;
+            }
+
+            const resultados = [];
+
+            for (const turma of turmas) {
+
+                const resposta = await fetch(
+                    `/api/turmas/${turma.id}/resultados`
+                );
+
+                if (resposta.status === 403) {
+
+                    const dados = await resposta.json();
+
+                    mostrarBloqueio(
+                        dados.mensagem ||
+                        "Os resultados ainda não estão disponíveis."
+                    );
+
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    continue;
+                }
+
+                const dados = await resposta.json();
+
+                if (!dados.resultadosDisponiveis) {
+
+                    mostrarBloqueio(
+                        dados.mensagem ||
+                        "Os resultados ainda não estão disponíveis."
+                    );
+
+                    return;
+                }
+
+                resultados.push(dados);
+            }
+
+            if (!resultados.length) {
+
+                mostrarBloqueio(
+                    "Os resultados ainda não estão disponíveis."
+                );
+
+                return;
+            }
+
+            bloqueio.style.display = "none";
+            conteudo.style.display = "block";
+
+            let totalEleitores = 0;
+            let totalVotos = 0;
+
+            lista.innerHTML = "";
+
+            resultados.forEach((dados, indice) => {
+
+                totalEleitores += Number(
+                    dados.totalEleitores || 0
+                );
+
+                totalVotos += Number(
+                    dados.totalVotos || 0
+                );
+
+                const chapas = dados.resultados || [];
+
+                if (!chapas.length) {
+                    return;
+                }
+
+                /*
+                    A primeira chapa da lista é a mais votada.
+                    O servidor já envia os resultados ordenados
+                    pela quantidade de votos.
+                */
+
+                const eleito = [...chapas].sort(
+                    (a, b) =>
+                        Number(b.votos || 0) -
+                        Number(a.votos || 0)
+                )[0];
+
+                const votosEleito = Number(
+                    eleito.votos || 0
+                );
+
+                const totalVotosTurma = Number(
+                    dados.totalVotos || 0
+                );
+
+                const porcentagem =
+                    totalVotosTurma > 0
+                        ? (votosEleito / totalVotosTurma) * 100
+                        : 0;
+
+                const percentualFormatado =
+                    porcentagem.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1
+                    });
+
+                const card = document.createElement("article");
+
+                card.className = "eleito-card";
+
+                card.style.animationDelay =
+                    `${indice * 100}ms`;
+
+                card.innerHTML = `
+
+                    <div class="turma-topo">
+
+                        <div class="turma">
+                            ${escapeHTML(
+                                dados.turma?.nome ||
+                                "Turma"
+                            )}
+                        </div>
+
+                        <div class="eleito-tag">
+                            ELEITO
+                        </div>
+
+                    </div>
+
+                    <div class="representante-label">
+                        REPRESENTANTE DE TURMA
+                    </div>
+
+                    <div class="nome-representante">
+                        ${escapeHTML(
+                            eleito.representante ||
+                            "Representante não informado"
+                        )}
+                    </div>
+
+                    <div class="vice">
+                        Vice:
+                        ${escapeHTML(
+                            eleito.vice ||
+                            "Não informado"
+                        )}
+                    </div>
+
+                    <div class="chapa-info">
+
+                        <div class="chapa-label">
+                            CHAPA ELEITA
+                        </div>
+
+                        <div class="chapa-nome">
+
+                            <span class="chapa-numero">
+                                ${escapeHTML(
+                                    String(
+                                        eleito.numero ??
+                                        ""
+                                    )
+                                )}
+                            </span>
+
+                            —
+                            ${escapeHTML(
+                                eleito.nome ||
+                                "Chapa"
+                            )}
+
+                        </div>
+
+                    </div>
+
+                    <div class="desempenho">
+
+                        <div class="desempenho-header">
+
+                            <span>
+                                DESEMPENHO DA CHAPA
+                            </span>
+
+                            <strong class="porcentagem">
+                                ${percentualFormatado}%
+                            </strong>
+
+                        </div>
+
+                        <div class="grafico">
+
+                            <div
+                                class="barra"
+                                data-percentual="${porcentagem}"
+                            ></div>
+
+                        </div>
+
+                        <div class="votos">
+
+                            <strong>
+                                ${votosEleito}
+                            </strong>
+
+                            voto${votosEleito === 1 ? "" : "s"}
+
+                            de
+
+                            <strong>
+                                ${totalVotosTurma}
+                            </strong>
+
+                            voto${totalVotosTurma === 1 ? "" : "s"}
+                            registrados na turma.
+
+                        </div>
+
+                    </div>
+
+                    <button class="btn-story">
+     GERAR STORY PARA INSTAGRAM
+</button>
+                `;
+
+                lista.appendChild(card);
+
+                const botaoStory = card.querySelector(".btn-story");
+
+botaoStory.addEventListener("click", () => {
+
+    abrirStory({
+        turma:
+            dados.turma?.nome ||
+            "Turma",
+
+        representante:
+            eleito.representante ||
+            "Representante",
+
+        vice:
+            eleito.vice ||
+            "Não informado",
+
+        numero:
+            String(
+                eleito.numero ??
+                ""
+            ),
+
+        chapa:
+            eleito.nome ||
+            "Chapa",
+
+        votos:
+            votosEleito,
+
+        porcentagem:
+            porcentagem
+    });
+
+});
+
+                setTimeout(() => {
+
+                    const barra =
+                        card.querySelector(".barra");
+
+                    if (barra) {
+
+                        barra.style.width =
+                            Math.min(
+                                porcentagem,
+                                100
+                            ) + "%";
+
+                    }
+
+                }, 250);
+
+            });
+
+            document.getElementById("totalTurmas")
+                .textContent = resultados.length;
+
+            document.getElementById("totalEleitores")
+                .textContent = totalEleitores;
+
+            document.getElementById("totalVotos")
+                .textContent = totalVotos;
+
+        } catch (erro) {
+
+            console.error(erro);
+
+            mostrarBloqueio(
+                "Não foi possível carregar os resultados."
+            );
+        }
+    }
 
 
-    // ==========================================
-    // PROTEÇÃO CONTRA HTML
-    // ==========================================
+    function mostrarBloqueio(mensagem) {
 
-    function escaparHTML(valor) {
+        const bloqueio =
+            document.getElementById("bloqueio");
 
-        return String(valor ?? "")
+        const conteudo =
+            document.getElementById("conteudoResultados");
+
+        bloqueio.style.display = "block";
+
+        conteudo.style.display = "none";
+
+        const texto =
+            bloqueio.querySelector("p");
+
+        if (texto) {
+            texto.textContent = mensagem;
+        }
+    }
+
+
+    function escapeHTML(valor) {
+
+        return String(valor)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
-
     }
 
 
-    // ==========================================
-    // CARREGAR TURMAS
-    // ==========================================
+    /* =====================================================
+       STORY DO INSTAGRAM
+       1080 x 1920
+    ===================================================== */
 
-    async function carregarTurmas() {
+    function abrirStory(dados) {
 
-        try {
+        dadosStoryAtual = dados;
 
-            const resposta =
-                await fetch("/api/turmas");
+        const modal =
+            document.getElementById("modalStory");
 
-            const dados =
-                await resposta.json();
+        modal.style.display = "flex";
 
-
-            if (
-                !dados.sucesso ||
-                !dados.turmas ||
-                dados.turmas.length === 0
-            ) {
-
-                listaTurmas.innerHTML = `
-                    <div class="mensagem">
-                        Nenhuma turma cadastrada.
-                    </div>
-                `;
-
-                return;
-
-            }
+        gerarImagemStory(dados);
+    }
 
 
-            listaTurmas.innerHTML = "";
+    function gerarImagemStory(dados) {
 
+        const canvas =
+            document.getElementById("storyCanvas");
 
-            dados.turmas.forEach(
-                turma => {
+        const ctx =
+            canvas.getContext("2d");
 
-                    const botao =
-                        document.createElement(
-                            "button"
-                        );
+        const largura = 1080;
+        const altura = 1920;
 
-                    botao.className =
-                        "turma";
+        canvas.width = largura;
+        canvas.height = altura;
 
+        /*
+            FUNDO
+        */
 
-                    botao.innerHTML = `
-
-                        <strong>
-                            ${escaparHTML(
-                                turma.nome
-                            )}
-                        </strong>
-
-                        <span>
-                            Clique para visualizar
-                            os resultados
-                        </span>
-
-                    `;
-
-
-                    botao.onclick =
-                        () => carregarResultado(
-                            turma.id,
-                            turma.nome
-                        );
-
-
-                    listaTurmas.appendChild(
-                        botao
-                    );
-
-                }
+        const gradiente =
+            ctx.createLinearGradient(
+                0,
+                0,
+                largura,
+                altura
             );
 
+        gradiente.addColorStop(
+            0,
+            "#020712"
+        );
 
-        } catch (erro) {
+        gradiente.addColorStop(
+            .45,
+            "#07172d"
+        );
 
-            console.error(erro);
+        gradiente.addColorStop(
+            1,
+            "#02050b"
+        );
 
-            listaTurmas.innerHTML = `
-                <div class="mensagem erro">
-                    Não foi possível conectar
-                    ao servidor.
-                </div>
-            `;
+        ctx.fillStyle = gradiente;
 
-        }
-
-    }
-
-
-    // ==========================================
-    // CARREGAR RESULTADO
-    // ==========================================
-
-    async function carregarResultado(
-        turmaId,
-        nomeTurma
-    ) {
-
-        listaChapas.innerHTML = `
-            <div class="mensagem">
-                Carregando resultados...
-            </div>
-        `;
-
-        resultado.style.display =
-            "block";
+        ctx.fillRect(
+            0,
+            0,
+            largura,
+            altura
+        );
 
 
-        try {
+        /*
+            BRILHOS
+        */
 
-            const resposta =
-                await fetch(
-                    `/api/turmas/${turmaId}/resultados`
-                );
-
-
-            const dados =
-                await resposta.json();
-
-
-            if (
-                !resposta.ok ||
-                !dados.sucesso
-            ) {
-
-                listaChapas.innerHTML = `
-                    <div class="mensagem erro">
-                        ${
-                            escaparHTML(
-                                dados.mensagem ||
-                                "Não foi possível carregar os resultados."
-                            )
-                        }
-                    </div>
-                `;
-
-                return;
-
-            }
-
-
-            renderizarResultado(
-                dados,
-                nomeTurma
+        const brilho1 =
+            ctx.createRadialGradient(
+                180,
+                200,
+                20,
+                180,
+                200,
+                500
             );
 
+        brilho1.addColorStop(
+            0,
+            "rgba(0,140,255,.35)"
+        );
 
-            resultado.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
+        brilho1.addColorStop(
+            1,
+            "rgba(0,140,255,0)"
+        );
+
+        ctx.fillStyle = brilho1;
+
+        ctx.fillRect(
+            0,
+            0,
+            largura,
+            altura
+        );
 
 
-        } catch (erro) {
+        const brilho2 =
+            ctx.createRadialGradient(
+                900,
+                1600,
+                30,
+                900,
+                1600,
+                500
+            );
 
-            console.error(erro);
+        brilho2.addColorStop(
+            0,
+            "rgba(0,100,255,.25)"
+        );
 
-            listaChapas.innerHTML = `
-                <div class="mensagem erro">
-                    Erro de conexão com o servidor.
-                </div>
-            `;
+        brilho2.addColorStop(
+            1,
+            "rgba(0,100,255,0)"
+        );
 
-        }
+        ctx.fillStyle = brilho2;
 
+        ctx.fillRect(
+            0,
+            0,
+            largura,
+            altura
+        );
+
+
+        /*
+            LINHA SUPERIOR
+        */
+
+        const linha =
+            ctx.createLinearGradient(
+                0,
+                0,
+                largura,
+                0
+            );
+
+        linha.addColorStop(
+            0,
+            "rgba(0,110,255,0)"
+        );
+
+        linha.addColorStop(
+            .5,
+            "#168cff"
+        );
+
+        linha.addColorStop(
+            1,
+            "rgba(0,110,255,0)"
+        );
+
+        ctx.fillStyle = linha;
+
+        ctx.fillRect(
+            0,
+            0,
+            largura,
+            8
+        );
+
+
+        /*
+            LOGO
+        */
+
+        ctx.fillStyle = "#168cff";
+
+        ctx.font =
+            "900 48px Arial";
+
+        ctx.textAlign = "center";
+
+        ctx.fillText(
+            "JK ELEIÇÕES",
+            largura / 2,
+            160
+        );
+
+        ctx.fillStyle = "#7890ad";
+
+        ctx.font =
+            "bold 20px Arial";
+
+        ctx.letterSpacing = "3px";
+
+        ctx.fillText(
+            "RESULTADO OFICIAL",
+            largura / 2,
+            205
+        );
+
+
+        /*
+            TURMA
+        */
+
+        ctx.fillStyle = "#fff";
+
+        ctx.font =
+            "900 58px Arial";
+
+        ctx.fillText(
+            dados.turma,
+            largura / 2,
+            390
+        );
+
+
+        /*
+            TAG ELEITO
+        */
+
+        ctx.fillStyle =
+            "rgba(0,130,255,.16)";
+
+        roundRect(
+            ctx,
+            330,
+            450,
+            420,
+            75,
+            38
+        );
+
+        ctx.fill();
+
+        ctx.strokeStyle =
+            "rgba(0,150,255,.5)";
+
+        ctx.lineWidth = 2;
+
+        ctx.stroke();
+
+        ctx.fillStyle = "#58bcff";
+
+        ctx.font =
+            "bold 24px Arial";
+
+        ctx.fillText(
+            "REPRESENTANTE ELEITO",
+            largura / 2,
+            498
+        );
+
+
+        /*
+            NOME
+        */
+
+        ctx.fillStyle = "#fff";
+
+        ctx.font =
+            "900 72px Arial";
+
+        const nome =
+            quebrarTexto(
+                ctx,
+                dados.representante,
+                850
+            );
+
+        desenharTextoCentralizado(
+            ctx,
+            nome,
+            largura / 2,
+            660,
+            82
+        );
+
+
+        /*
+            VICE
+        */
+
+        ctx.fillStyle = "#91a6bf";
+
+        ctx.font =
+            "30px Arial";
+
+        ctx.fillText(
+            "Vice: " + dados.vice,
+            largura / 2,
+            830
+        );
+
+
+        /*
+            CHAPA
+        */
+
+        ctx.fillStyle =
+            "rgba(255,255,255,.045)";
+
+        roundRect(
+            ctx,
+            120,
+            930,
+            840,
+            230,
+            30
+        );
+
+        ctx.fill();
+
+        ctx.strokeStyle =
+            "rgba(255,255,255,.09)";
+
+        ctx.stroke();
+
+        ctx.fillStyle = "#7287a1";
+
+        ctx.font =
+            "bold 22px Arial";
+
+        ctx.fillText(
+            "CHAPA ELEITA",
+            largura / 2,
+            990
+        );
+
+        ctx.fillStyle = "#168cff";
+
+        ctx.font =
+            "900 52px Arial";
+
+        ctx.fillText(
+            "CHAPA " + dados.numero,
+            largura / 2,
+            1060
+        );
+
+        ctx.fillStyle = "#fff";
+
+        ctx.font =
+            "bold 34px Arial";
+
+        ctx.fillText(
+            dados.chapa,
+            largura / 2,
+            1115
+        );
+
+
+        /*
+            DESEMPENHO
+        */
+
+        ctx.fillStyle = "#7890ad";
+
+        ctx.font =
+            "bold 21px Arial";
+
+        ctx.fillText(
+            "DESEMPENHO NA TURMA",
+            largura / 2,
+            1250
+        );
+
+
+        /*
+            BARRA
+        */
+
+        const barraX = 120;
+        const barraY = 1300;
+        const barraW = 840;
+        const barraH = 30;
+
+        ctx.fillStyle =
+            "rgba(255,255,255,.08)";
+
+        roundRect(
+            ctx,
+            barraX,
+            barraY,
+            barraW,
+            barraH,
+            20
+        );
+
+        ctx.fill();
+
+
+        const porcentagem =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    Number(dados.porcentagem || 0)
+                )
+            );
+
+        const preenchida =
+            barraW * (porcentagem / 100);
+
+        const gradBarra =
+            ctx.createLinearGradient(
+                barraX,
+                0,
+                barraX + barraW,
+                0
+            );
+
+        gradBarra.addColorStop(
+            0,
+            "#006eff"
+        );
+
+        gradBarra.addColorStop(
+            1,
+            "#5cc4ff"
+        );
+
+        ctx.fillStyle = gradBarra;
+
+        roundRect(
+            ctx,
+            barraX,
+            barraY,
+            preenchida,
+            barraH,
+            20
+        );
+
+        ctx.fill();
+
+
+        /*
+            PORCENTAGEM
+        */
+
+        ctx.fillStyle = "#fff";
+
+        ctx.font =
+            "900 95px Arial";
+
+        ctx.fillText(
+            porcentagem
+                .toLocaleString(
+                    "pt-BR",
+                    {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1
+                    }
+                ) + "%",
+            largura / 2,
+            1490
+        );
+
+
+        /*
+            VOTOS
+        */
+
+        ctx.fillStyle = "#91a6bf";
+
+        ctx.font =
+            "30px Arial";
+
+        ctx.fillText(
+            dados.votos +
+            (
+                dados.votos === 1
+                    ? " voto recebido"
+                    : " votos recebidos"
+            ),
+            largura / 2,
+            1560
+        );
+
+
+        /*
+            RODAPÉ
+        */
+
+        ctx.fillStyle =
+            "rgba(255,255,255,.08)";
+
+        ctx.fillRect(
+            120,
+            1690,
+            840,
+            1
+        );
+
+        ctx.fillStyle = "#60758e";
+
+        ctx.font =
+            "22px Arial";
+
+        ctx.fillText(
+            "ELEIÇÕES DE REPRESENTANTES DE TURMA",
+            largura / 2,
+            1750
+        );
+
+        ctx.fillText(
+            "ESCOLA ESTADUAL JOHN KENNEDY",
+            largura / 2,
+            1790
+        );
+
+        ctx.fillStyle = "#168cff";
+
+        ctx.font =
+            "bold 25px Arial";
+
+        ctx.fillText(
+            "#EleicoesJK",
+            largura / 2,
+            1860
+        );
     }
 
 
-    // ==========================================
-    // RENDERIZAR
-    // ==========================================
-
-    function renderizarResultado(
-        dados,
-        nomeTurma
+    function roundRect(
+        ctx,
+        x,
+        y,
+        width,
+        height,
+        radius
     ) {
 
-        const eleicao =
-            dados.eleicao;
+        const r =
+            Math.min(
+                radius,
+                width / 2,
+                height / 2
+            );
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x + r,
+            y
+        );
+
+        ctx.arcTo(
+            x + width,
+            y,
+            x + width,
+            y + height,
+            r
+        );
+
+        ctx.arcTo(
+            x + width,
+            y + height,
+            x,
+            y + height,
+            r
+        );
+
+        ctx.arcTo(
+            x,
+            y + height,
+            x,
+            y,
+            r
+        );
+
+        ctx.arcTo(
+            x,
+            y,
+            x + width,
+            y,
+            r
+        );
+
+        ctx.closePath();
+    }
 
 
-        cabecalhoResultado.innerHTML = `
+    function quebrarTexto(
+        ctx,
+        texto,
+        larguraMaxima
+    ) {
 
-            <h3>
-                ${escaparHTML(
-                    eleicao?.nome ||
-                    "Eleição de Representantes"
-                )}
-            </h3>
+        const palavras =
+            String(texto).split(" ");
 
-            <p>
-                Turma:
-                <strong>
-                    ${escaparHTML(
-                        nomeTurma
-                    )}
-                </strong>
+        const linhas = [];
 
-                ${
-                    eleicao?.descricao
-                    ? `
-                        <br>
-                        ${escaparHTML(
-                            eleicao.descricao
-                        )}
-                    `
-                    : ""
-                }
+        let linhaAtual = "";
 
-            </p>
+        palavras.forEach(palavra => {
 
-        `;
+            const teste =
+                linhaAtual
+                    ? linhaAtual + " " + palavra
+                    : palavra;
 
+            if (
+                ctx.measureText(teste).width
+                <= larguraMaxima
+            ) {
 
-        resumo.innerHTML = `
+                linhaAtual = teste;
 
-            <div class="resumo-card">
+            } else {
 
-                <span>
-                    ELEITORES
-                </span>
+                linhas.push(linhaAtual);
 
-                <strong>
-                    ${dados.totalEleitores}
-                </strong>
+                linhaAtual = palavra;
+            }
 
-            </div>
+        });
 
-
-            <div class="resumo-card">
-
-                <span>
-                    VOTOS REGISTRADOS
-                </span>
-
-                <strong>
-                    ${dados.totalVotos}
-                </strong>
-
-            </div>
-
-
-            <div class="resumo-card">
-
-                <span>
-                    CHAPAS
-                </span>
-
-                <strong>
-                    ${dados.resultados.length}
-                </strong>
-
-            </div>
-
-        `;
-
-
-        if (
-            !dados.resultados ||
-            dados.resultados.length === 0
-        ) {
-
-            listaChapas.innerHTML = `
-                <div class="mensagem">
-                    Nenhuma chapa cadastrada
-                    nesta turma.
-                </div>
-            `;
-
-            return;
-
+        if (linhaAtual) {
+            linhas.push(linhaAtual);
         }
 
-
-        listaChapas.innerHTML = "";
-
-
-        dados.resultados.forEach(
-            chapa => {
-
-                const card =
-                    document.createElement(
-                        "div"
-                    );
-
-                card.className =
-                    "chapa";
+        return linhas;
+    }
 
 
-                card.innerHTML = `
+    function desenharTextoCentralizado(
+        ctx,
+        linhas,
+        x,
+        y,
+        tamanho
+    ) {
 
-                    <div class="chapa-topo">
+        ctx.font =
+            `900 ${tamanho}px Arial`;
 
-                        <div>
+        linhas.forEach(
+            (linha, indice) => {
 
-                            <div class="numero">
-                                CHAPA
-                                ${escaparHTML(
-                                    chapa.numero
-                                )}
-                            </div>
-
-                            <div class="nome">
-                                ${escaparHTML(
-                                    chapa.nome
-                                )}
-                            </div>
-
-                        </div>
-
-
-                        <div class="votos">
-
-                            <strong>
-                                ${chapa.votos}
-                            </strong>
-
-                            <span>
-                                voto(s)
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="pessoas">
-
-                        <strong>
-                            Representante:
-                        </strong>
-
-                        ${escaparHTML(
-                            chapa.representante
-                        )}
-
-                        <br>
-
-                        <strong>
-                            Vice:
-                        </strong>
-
-                        ${escaparHTML(
-                            chapa.vice
-                        )}
-
-                    </div>
-
-
-                    <div class="barra">
-
-                        <div
-                            class="barra-preenchimento"
-                            style="
-                                width:
-                                ${chapa.porcentagem}%;
-                            "
-                        ></div>
-
-                    </div>
-
-
-                    <div class="porcentagem">
-
-                        ${chapa.porcentagem}%
-
-                    </div>
-
-                `;
-
-
-                listaChapas.appendChild(
-                    card
+                ctx.fillText(
+                    linha,
+                    x,
+                    y +
+                    indice *
+                    (tamanho + 10)
                 );
 
             }
         );
-
     }
 
 
-    // ==========================================
-    // VOLTAR
-    // ==========================================
+    document
+        .getElementById("fecharStory")
+        .addEventListener(
+            "click",
+            () => {
 
-    function voltarTurmas() {
+                document
+                    .getElementById("modalStory")
+                    .style.display = "none";
 
-        resultado.style.display =
-            "none";
-
-        listaChapas.innerHTML = "";
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-
-    }
+            }
+        );
 
 
-    // ==========================================
-    // INICIAR
-    // ==========================================
+    document
+        .getElementById("baixarStory")
+        .addEventListener(
+            "click",
+            () => {
 
-    carregarTurmas();
+                if (!dadosStoryAtual) {
+                    return;
+                }
+
+                const canvas =
+                    document.getElementById(
+                        "storyCanvas"
+                    );
+
+                const link =
+                    document.createElement("a");
+
+                const nomeArquivo =
+                    "story-eleicao-" +
+                    dadosStoryAtual.turma
+                        .replace(/\s+/g, "-")
+                        .replace(
+                            /[^a-zA-Z0-9À-ÿ-]/g,
+                            ""
+                        )
+                        .toLowerCase();
+
+                link.download =
+                    nomeArquivo + ".png";
+
+                link.href =
+                    canvas.toDataURL(
+                        "image/png"
+                    );
+
+                link.click();
+
+            }
+        );
+
+
+    /*
+        FECHAR CLICANDO FORA
+    */
+
+    document
+        .getElementById("modalStory")
+        .addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target.id ===
+                    "modalStory"
+                ) {
+
+                    event.currentTarget.style.display =
+                        "none";
+
+                }
+
+            }
+        );
+
+
+    carregarResultados();
 
 </script>
 
 </body>
-
 </html>
